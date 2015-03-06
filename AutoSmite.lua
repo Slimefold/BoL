@@ -14,7 +14,7 @@
                                                                                              
 ]]
 
-local AutoSmite_Version = 2.7
+local AutoSmite_Version = 2.8
 
 class "SxUpdate"
 function SxUpdate:__init(LocalVersion, Host, VersionPath, ScriptPath, SavePath, Callback)
@@ -79,6 +79,7 @@ end)
 class 'MinionSmiteManager'
 class 'Chogath'
 class 'Nunu'
+class 'Volibear'
 class 'Smite'
 
 function OnLoad()
@@ -86,10 +87,16 @@ function OnLoad()
 	MinionSmiteManager()
 	if myHero.charName == "Chogath" then
 		Chogath()
+		print("<font color=\"#F0Ff8d\"><b>AutoSmite: </b></font> <font color=\"#FF0F0F\">Successfully Load Chogath</b></font>")
 	elseif myHero.charName == "Nunu" then
 		Nunu()
+		print("<font color=\"#F0Ff8d\"><b>AutoSmite: </b></font> <font color=\"#FF0F0F\">Successfully Load Nunu</b></font>")
+	elseif myHero.charName == "Volibear" then
+		Volibear()
+		print("<font color=\"#F0Ff8d\"><b>AutoSmite: </b></font> <font color=\"#FF0F0F\">Successfully Load Volibear</b></font>")
 	else
 		Smite()
+		print("<font color=\"#F0Ff8d\"><b>AutoSmite: </b></font> <font color=\"#FF0F0F\">Successfully Load</b></font>")
 	end	
 end
 
@@ -122,7 +129,6 @@ function MinionSmiteManager:OnTick()
 		self:killSteal()
 	end
 end
-
 
 function MinionSmiteManager:ValidMinion(m)
 	return (m and m ~= nil and m.type and not m.dead and m.name ~= "hiu" and m.name and m.type:lower():find("min") and not m.name:lower():find("camp") and m.team ~= myHero.team and m.charName and not m.name:find("OdinNeutralGuardian") and not m.name:find("OdinCenterRelic"))
@@ -265,7 +271,7 @@ function Smite:CheckSmite()
 	self.minion = self.MyOwnMinionSmiteManager:CheckMinion()
 	if self.minion then
 		if self.minion.health <= self.smiteDamage then 
-			CastSpell(self.smiteSlot, self.minion)
+			-- CastSpell(self.smiteSlot, self.minion)
 		end
 	end
 end
@@ -311,7 +317,7 @@ end
 function Chogath:OnDraw()
 	if not myHero.dead then
 		if _G.myMenu.Draw.drawSmite then 
-			if self.rReady then
+			if self.rReady and _G.myMenu.settings.useR then
 				DrawCircle(myHero.x, myHero.y, myHero.z, 350, RGB(100, 44, 255))
 			end
 			if self.smiteReady then
@@ -430,7 +436,7 @@ end
 
 function Nunu:OnDraw()
 	if not myHero.dead then
-		if _G.myMenu.Draw.drawSmite and self.qReady then
+		if _G.myMenu.Draw.drawSmite and self.qReady and _G.myMenu.settings.useQ then
 			DrawCircle(myHero.x, myHero.y, myHero.z, 350, RGB(100, 44, 255))
 		end
 		if _G.myMenu.Draw.drawSmite and self.smiteReady then
@@ -533,6 +539,127 @@ function Nunu:CheckSmite()
 		elseif GetDistance(self.minion) <= 550 then
 			self.smiteDamage = self.smite
 			if self.minion.health <= self.smiteDamage and _G.myMenu.settings.Smite then 
+				CastSpell(self.smiteSlot, self.minion)
+			end
+		end
+	end
+end
+
+--------------------------------------------------------------------------
+--------------------------------------------------------------------------
+--[[ 			Volibear			]]
+--------------------------------------------------------------------------
+--------------------------------------------------------------------------
+
+function Volibear:__init()
+	self.MyOwnMinionSmiteManager = MinionSmiteManager()
+	self.MyOwnMinionSmiteManager:Menu()
+	_G.myMenu.settings:addParam("useW","Use (W)", SCRIPT_PARAM_ONOFF, true)
+	self.smiteSlot = self.MyOwnMinionSmiteManager:foundSmite()
+	self.smite = math.max(20*myHero.level+370,30*myHero.level+330,40*myHero.level+240,50*myHero.level+100)
+	self.spell = nil
+	self.smiteDamage = nil
+	self.wReady = nil
+	self.smiteReady = nil
+	AddTickCallback(function() self:OnTick() end)
+	AddDrawCallback(function() self:OnDraw() end)
+end
+
+function Volibear:OnDraw()
+	if not myHero.dead then
+		if _G.myMenu.Draw.drawSmite then 
+			if self.wReady and _G.myMenu.settings.useW then
+				DrawCircle(myHero.x, myHero.y, myHero.z, 350, RGB(100, 44, 255))
+			end
+			if self.smiteReady then
+				DrawCircle(myHero.x, myHero.y, myHero.z, 550, RGB(100, 44, 255))
+			end
+		end
+		if _G.myMenu.Draw.drawSmitable then
+			self.minion = self.MyOwnMinionSmiteManager:CheckMinion()
+			if self.minion and GetDistance(self.minion) <= 350 and _G.myMenu.settings.useW then 
+				self.spell = getDmg("W", self.minion, myHero) 
+				if self.smiteReady and self.wReady then
+					self.smiteDamage = self.smite + self.spell
+					self.drawDamage = self.minion.health - self.smiteDamage
+					if self.minion.health > self.smiteDamage then
+						DrawText3D(tostring(math.ceil(self.drawDamage)),self.minion.x, self.minion.y+450, self.minion.z, 24, 0xFFFF0000)
+					else
+						DrawText3D("SMITABLE (R + SMITE)",self.minion.x, self.minion.y+450, self.minion.z, 24, 0xff00ff00)
+					end
+				elseif self.smiteReady and not self.wReady then
+					self.drawDamage = self.minion.health - self.smite
+					if self.minion.health > self.smite then
+						DrawText3D(tostring(math.ceil(self.drawDamage)),self.minion.x, self.minion.y+450, self.minion.z, 24, 0xFFFF0000)
+					else
+						DrawText3D("SMITABLE (SMITE)",self.minion.x, self.minion.y+450, self.minion.z, 24, 0xff00ff00)
+					end
+				elseif not self.smiteReady and self.wReady then
+					self.drawDamage = self.minion.health - self.spell
+					if self.minion.health > self.spell then
+						DrawText3D(tostring(math.ceil(self.drawDamage)),self.minion.x, self.minion.y+450, self.minion.z, 24, 0xFFFF0000)
+					else
+						DrawText3D("SMITABLE (R)",self.minion.x, self.minion.y+450, self.minion.z, 24, 0xff00ff00)
+					end
+				end
+			elseif self.minion and GetDistance(self.minion) <= 550 and self.smiteReady then
+				self.drawDamage = self.minion.health - self.smite
+				if self.minion.health > self.smite then
+					DrawText3D(tostring(math.ceil(self.drawDamage)),self.minion.x, self.minion.y+450, self.minion.z, 24, 0xFFFF0000)
+				else
+					DrawText3D("SMITABLE (SMITE)",self.minion.x, self.minion.y+450, self.minion.z, 24, 0xff00ff00)
+				end
+			end
+		end
+	end
+end
+
+function Volibear:OnTick()
+	self.smiteReady = self.MyOwnMinionSmiteManager:smiteReady()
+	self.wReady = (myHero:CanUseSpell(_W) == READY)
+	self.smite = math.max(20*myHero.level+370,30*myHero.level+330,40*myHero.level+240,50*myHero.level+100)
+	if _G.myMenu.settings.Smite then
+		self:CheckSmite()
+	end
+end
+
+function Volibear:CheckSmite()
+	self.minion = self.MyOwnMinionSmiteManager:CheckMinion()
+	if self.minion then
+		if GetDistance(self.minion) <= 350 then
+			if _G.myMenu.settings.useW then
+				if self.wReady and self.smiteReady then
+					self.smiteDamage = self.smite + self.spell
+					if self.smite > self.spell then
+						if self.minion.health - self.smite <= self.spell then 
+							CastSpell(_W, self.minion)
+						end
+					end
+					if self.spell > self.smite then
+						if self.minion.health - self.spell <= self.smite then 
+							CastSpell(self.smiteSlot, self.minion)
+						end
+					end
+				elseif self.wReady and not self.smiteReady then
+					self.smiteDamage = self.spell
+					if self.minion.health <= self.smiteDamage then 
+						CastSpell(_W, self.minion)
+					end
+				elseif not self.wReady and self.smiteReady then
+					self.smiteDamage = self.smite
+					if self.minion.health <= self.smiteDamage then 
+						CastSpell(self.smiteSlot, self.minion)
+					end
+				end
+			else
+				self.smiteDamage = self.smite
+				if self.minion.health <= self.smiteDamage and self.smiteReady then 
+					CastSpell(self.smiteSlot, self.minion)
+				end
+			end
+		elseif GetDistance(self.minion) <= 550 then
+			self.smiteDamage = self.smite
+			if self.minion.health <= self.smiteDamage then 
 				CastSpell(self.smiteSlot, self.minion)
 			end
 		end
