@@ -14,7 +14,7 @@
                                                                                              
 ]]
 
-local AutoSmite_Version = 2.5
+local AutoSmite_Version = 2.6
 
 class "SxUpdate"
 function SxUpdate:__init(LocalVersion, Host, VersionPath, ScriptPath, SavePath, Callback)
@@ -271,15 +271,15 @@ function Smite:CheckSmite()
 end
 
 function Smite:OnDraw()
-	if not myHero.dead and self:smiteReady() then
+	if not myHero.dead and self.smiteReady then
 		if _G.myMenu.Draw.drawSmite then
 			DrawCircle(myHero.x, myHero.y, myHero.z, 550, RGB(100, 44, 255))
 		end
 		if _G.myMenu.Draw.drawSmitable then
-			self.minion = self:CheckMinion()
+			self.minion = self.MyOwnMinionSmiteManager:CheckMinion()
 			if self.minion and GetDistance(self.minion) <= 550 then
-				self.drawDamage = self.minion.health - self.smite
-				if self.minion.health > self.smite then
+				self.drawDamage = self.minion.health - self.smiteDamage
+				if self.minion.health > self.smiteDamage then
 					DrawText3D(tostring(math.ceil(self.drawDamage)),self.minion.x, self.minion.y+450, self.minion.z, 24, 0xFFFF0000)
 				else
 					DrawText3D("SMITABLE (SMITE)",self.minion.x, self.minion.y+450, self.minion.z, 24, 0xff00ff00)
