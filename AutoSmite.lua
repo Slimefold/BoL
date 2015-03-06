@@ -14,7 +14,7 @@
                                                                                              
 ]]
 
-local AutoSmite_Version = 2.4
+local AutoSmite_Version = 2.5
 
 class "SxUpdate"
 function SxUpdate:__init(LocalVersion, Host, VersionPath, ScriptPath, SavePath, Callback)
@@ -111,10 +111,18 @@ function MinionSmiteManager:__init()
 		end
 	end
 	
+	AddTickCallback(function() self:OnTick() end)
 	AddCreateObjCallback(function(minion) self:OnCreateObj(minion) end)
 	AddDeleteObjCallback(function(minion) self:OnDeleteObj(minion) end)
 	
 end
+
+function MinionSmiteManager:OnTick()
+	if _G.myMenu.settings.Smite and _G.myMenu.killsteal.killsteal then
+		self:killSteal()
+	end
+end
+
 
 function MinionSmiteManager:ValidMinion(m)
 	return (m and m ~= nil and m.type and not m.dead and m.name ~= "hiu" and m.name and m.type:lower():find("min") and not m.name:lower():find("camp") and m.team ~= myHero.team and m.charName and not m.name:find("OdinNeutralGuardian") and not m.name:find("OdinCenterRelic"))
@@ -154,7 +162,7 @@ function MinionSmiteManager:killSteal()
 	for _, unit in pairs(GetEnemyHeroes()) do
 		self.health = unit.health
 		self.smiteDmgOnChamp = 20 + (8 *myHero.level)
-		if self.health < self.smiteDmgOnChamp * 0.95 and ValidTarget(unit) then
+		if self.health < self.smiteDmgOnChamp * 0.95 and ValidTarget(unit) and GetDistance(unit) <= 550 then
 			CastSpell(self:foundSmite(), unit)
 		end	
 	end
