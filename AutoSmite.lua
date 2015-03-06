@@ -14,7 +14,7 @@
                                                                                              
 ]]
 
-local AutoSmite_Version = 2.6
+local AutoSmite_Version = 2.7
 
 class "SxUpdate"
 function SxUpdate:__init(LocalVersion, Host, VersionPath, ScriptPath, SavePath, Callback)
@@ -344,7 +344,7 @@ function Chogath:OnDraw()
 						DrawText3D("SMITABLE (R)",self.minion.x, self.minion.y+450, self.minion.z, 24, 0xff00ff00)
 					end
 				end
-			elseif self.minion and GetDistance(self.minion) <= 550 then
+			elseif self.minion and GetDistance(self.minion) <= 550 and self.smiteReady then
 				self.drawDamage = self.minion.health - self.smite
 				if self.minion.health > self.smite then
 					DrawText3D(tostring(math.ceil(self.drawDamage)),self.minion.x, self.minion.y+450, self.minion.z, 24, 0xFFFF0000)
