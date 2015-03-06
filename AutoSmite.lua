@@ -14,7 +14,7 @@
                                                                                              
 ]]
 
-local AutoSmite_Version = 2.8
+local AutoSmite_Version = 2.9
 
 class "SxUpdate"
 function SxUpdate:__init(LocalVersion, Host, VersionPath, ScriptPath, SavePath, Callback)
@@ -271,7 +271,7 @@ function Smite:CheckSmite()
 	self.minion = self.MyOwnMinionSmiteManager:CheckMinion()
 	if self.minion then
 		if self.minion.health <= self.smiteDamage then 
-			-- CastSpell(self.smiteSlot, self.minion)
+			CastSpell(self.smiteSlot, self.minion)
 		end
 	end
 end
@@ -374,6 +374,8 @@ end
 function Chogath:CheckSmite()
 	self.minion = self.MyOwnMinionSmiteManager:CheckMinion()
 	if self.minion then
+		self.spell = 1000 + (0.7*myHero.ap)
+		print(self.spell)
 		if GetDistance(self.minion) <= 350 then
 			if _G.myMenu.settings.useR then
 				if self.rReady and self.smiteReady then
@@ -578,7 +580,6 @@ function Volibear:OnDraw()
 		if _G.myMenu.Draw.drawSmitable then
 			self.minion = self.MyOwnMinionSmiteManager:CheckMinion()
 			if self.minion and GetDistance(self.minion) <= 350 and _G.myMenu.settings.useW then 
-				self.spell = getDmg("W", self.minion, myHero) 
 				if self.smiteReady and self.wReady then
 					self.smiteDamage = self.smite + self.spell
 					self.drawDamage = self.minion.health - self.smiteDamage
@@ -626,6 +627,7 @@ end
 function Volibear:CheckSmite()
 	self.minion = self.MyOwnMinionSmiteManager:CheckMinion()
 	if self.minion then
+		self.spell = getDmg("W", self.minion, myHero) 
 		if GetDistance(self.minion) <= 350 then
 			if _G.myMenu.settings.useW then
 				if self.wReady and self.smiteReady then
