@@ -14,7 +14,7 @@
                                                                                              
 ]]
 
-local AutoSmite_Version = 3.2
+local AutoSmite_Version = 3.3
 
 class "SxUpdate"
 function SxUpdate:__init(LocalVersion, Host, VersionPath, ScriptPath, SavePath, Callback)
@@ -81,7 +81,8 @@ class 'Chogath'
 class 'Nunu'
 class 'Volibear'
 class 'Smite'
-class'Shaco'
+class 'Shaco'
+class 'Olaf'
 
 function OnLoad()
 	if ForceReload then return end
@@ -99,6 +100,9 @@ function OnLoad()
 	elseif myHero.charName == "Shaco" then
 		Shaco()
 		print("<font color=\"#F0Ff8d\"><b>AutoSmite: </b></font> <font color=\"#FF0F0F\">Successfully Load Shaco</b></font>")
+	elseif myHero.charName == "Olaf" then
+		Olaf()
+		print("<font color=\"#F0Ff8d\"><b>AutoSmite: </b></font> <font color=\"#FF0F0F\">Successfully Load Olaf</b></font>")
 	else
 		Smite()
 		print("<font color=\"#F0Ff8d\"><b>AutoSmite: </b></font> <font color=\"#FF0F0F\">Successfully Load</b></font>")
@@ -244,11 +248,13 @@ function MinionSmiteManager:Menu()
 		_G.myMenu.settings:addParam("info", "----------------------------------------", SCRIPT_PARAM_INFO, "")
 		_G.myMenu.settings:addParam("drake", "Use On Drake ", SCRIPT_PARAM_ONOFF, true)
 		_G.myMenu.settings:addParam("nashor" , "Use On Nashor " , SCRIPT_PARAM_ONOFF, true)
+		_G.myMenu.settings:permaShow("Smite")
 	_G.myMenu:addSubMenu("[AutoSmite] "..myHero.charName.." - Draw", "Draw")
 		_G.myMenu.Draw:addParam("drawSmite" , "Draw Smite Range " , SCRIPT_PARAM_ONOFF, true)
 		_G.myMenu.Draw:addParam("drawSmitable" , "Draw Dammage " , SCRIPT_PARAM_ONOFF, true)
 	_G.myMenu:addSubMenu("[AutoSmite] "..myHero.charName.." - KillSteal", "killsteal")
 		_G.myMenu.killsteal:addParam("killsteal" , "KillSteal With Chilling Smite" , SCRIPT_PARAM_ONOFF, true)
+		_G.myMenu.killsteal:permaShow("killsteal")
 end
 
 --------------------------------------------------------------------------
@@ -313,6 +319,7 @@ function Chogath:__init()
 	self.MyOwnMinionSmiteManager:Menu()
 	_G.myMenu.settings:addParam("info", "----------------------------------------", SCRIPT_PARAM_INFO, "")
 	_G.myMenu.settings:addParam("useR","Use (R)", SCRIPT_PARAM_ONOFF, true)
+	_G.myMenu.settings:permaShow("useR")
 	self.smiteSlot = self.MyOwnMinionSmiteManager:foundSmite()
 	self.smite = math.max(20*myHero.level+370,30*myHero.level+330,40*myHero.level+240,50*myHero.level+100)
 	self.spell = 1000 + (0.7*myHero.ap)
@@ -430,6 +437,7 @@ function Nunu:__init()
 	self.MyOwnMinionSmiteManager:Menu()
 	_G.myMenu.settings:addParam("info", "----------------------------------------", SCRIPT_PARAM_INFO, "")
 	_G.myMenu.settings:addParam("useQ","Use (Q)", SCRIPT_PARAM_ONOFF, true)
+	_G.myMenu.settings:permaShow("useQ")
 	self.smiteSlot = self.MyOwnMinionSmiteManager:foundSmite()
 	self.smiteDamage = nil
 	self.smiteReady = nil
@@ -568,6 +576,7 @@ function Volibear:__init()
 	self.MyOwnMinionSmiteManager:Menu()
 	_G.myMenu.settings:addParam("info", "----------------------------------------", SCRIPT_PARAM_INFO, "")
 	_G.myMenu.settings:addParam("useW","Use (W)", SCRIPT_PARAM_ONOFF, true)
+	_G.myMenu.settings:permaShow("useW")
 	self.smiteSlot = self.MyOwnMinionSmiteManager:foundSmite()
 	self.smite = math.max(20*myHero.level+370,30*myHero.level+330,40*myHero.level+240,50*myHero.level+100)
 	self.spell = nil
@@ -817,6 +826,137 @@ function Shaco:CheckSmite()
 						CastSpell(self.smiteSlot, self.minion)
 					end
 				end
+			end
+		end
+	end
+end
+
+--------------------------------------------------------------------------
+--------------------------------------------------------------------------
+--[[ 			OLAF			]]
+--------------------------------------------------------------------------
+--------------------------------------------------------------------------
+
+function Olaf:__init()
+	self.MyOwnMinionSmiteManager = MinionSmiteManager()
+	self.MyOwnMinionSmiteManager:Menu()
+	_G.myMenu.settings:addParam("info", "----------------------------------------", SCRIPT_PARAM_INFO, "")
+	_G.myMenu.settings:addParam("useE","Use (E)", SCRIPT_PARAM_ONOFF, true)
+	_G.myMenu.settings:addParam("smiteFirst","Finish Minion With (E) for Passive", SCRIPT_PARAM_ONOFF, true)
+	_G.myMenu.settings:addParam("info", "On = Smite then (E) | Off = (E) then Smite", SCRIPT_PARAM_INFO, "")
+	_G.myMenu.settings:permaShow("useE")
+	_G.myMenu.settings:permaShow("smiteFirst")
+	self.smiteSlot = self.MyOwnMinionSmiteManager:foundSmite()
+	self.smite = math.max(20*myHero.level+370,30*myHero.level+330,40*myHero.level+240,50*myHero.level+100)
+	self.spell = nil
+	self.smiteDamage = nil
+	self.eReady = nil
+	self.smiteReady = nil
+	AddTickCallback(function() self:OnTick() end)
+	AddDrawCallback(function() self:OnDraw() end)
+end
+
+function Olaf:OnDraw()
+	if not myHero.dead then
+		if _G.myMenu.Draw.drawSmite then 
+			if self.eReady and _G.myMenu.settings.useE then
+				DrawCircle(myHero.x, myHero.y, myHero.z, 350, RGB(100, 44, 255))
+			end
+			if self.smiteReady then
+				DrawCircle(myHero.x, myHero.y, myHero.z, 550, RGB(100, 44, 255))
+			end
+		end
+		if _G.myMenu.Draw.drawSmitable then
+			self.minion = self.MyOwnMinionSmiteManager:CheckMinion()
+			if self.minion and GetDistance(self.minion) <= 350 and _G.myMenu.settings.useE then 
+				if self.smiteReady and self.eReady then
+					self.smiteDamage = self.smite + self.spell
+					self.drawDamage = self.minion.health - self.smiteDamage
+					if self.minion.health > self.smiteDamage then
+						DrawText3D(tostring(math.ceil(self.drawDamage)),self.minion.x, self.minion.y+450, self.minion.z, 24, 0xFFFF0000)
+					else
+						DrawText3D("SMITABLE (R + SMITE)",self.minion.x, self.minion.y+450, self.minion.z, 24, 0xff00ff00)
+					end
+				elseif self.smiteReady and not self.eReady then
+					self.drawDamage = self.minion.health - self.smite
+					if self.minion.health > self.smite then
+						DrawText3D(tostring(math.ceil(self.drawDamage)),self.minion.x, self.minion.y+450, self.minion.z, 24, 0xFFFF0000)
+					else
+						DrawText3D("SMITABLE (SMITE)",self.minion.x, self.minion.y+450, self.minion.z, 24, 0xff00ff00)
+					end
+				elseif not self.smiteReady and self.eReady then
+					self.drawDamage = self.minion.health - self.spell
+					if self.minion.health > self.spell then
+						DrawText3D(tostring(math.ceil(self.drawDamage)),self.minion.x, self.minion.y+450, self.minion.z, 24, 0xFFFF0000)
+					else
+						DrawText3D("SMITABLE (R)",self.minion.x, self.minion.y+450, self.minion.z, 24, 0xff00ff00)
+					end
+				end
+			elseif self.minion and GetDistance(self.minion) <= 550 and self.smiteReady then
+				self.drawDamage = self.minion.health - self.smite
+				if self.minion.health > self.smite then
+					DrawText3D(tostring(math.ceil(self.drawDamage)),self.minion.x, self.minion.y+450, self.minion.z, 24, 0xFFFF0000)
+				else
+					DrawText3D("SMITABLE (SMITE)",self.minion.x, self.minion.y+450, self.minion.z, 24, 0xff00ff00)
+				end
+			end
+		end
+	end
+end
+
+function Olaf:OnTick()
+	self.smiteReady = self.MyOwnMinionSmiteManager:smiteReady()
+	self.eReady = (myHero:CanUseSpell(_E) == READY)
+	self.smite = math.max(20*myHero.level+370,30*myHero.level+330,40*myHero.level+240,50*myHero.level+100)
+	if self.minion then
+		self.spell = getDmg("E", self.minion, myHero) 
+	end
+	if _G.myMenu.settings.Smite then
+		self:CheckSmite()
+	end
+end
+
+function Olaf:CheckSmite()
+	self.minion = self.MyOwnMinionSmiteManager:CheckMinion()
+	if self.minion then
+		if GetDistance(self.minion) <= 350 then
+			if _G.myMenu.settings.useE then
+				if self.eReady and self.smiteReady then
+					self.smiteDamage = self.smite + self.spell
+					if self.minion.health <= self.smiteDamage then 
+						if _G.myMenu.settings.smiteFirst then
+							CastSpell(self.smiteSlot, self.minion)
+							CastSpell(_E, self.minion)
+						else
+							CastSpell(_E, self.minion)
+						end
+					end
+					if self.spell > self.smite then
+						if self.minion.health - self.spell <= self.smite then 
+							CastSpell(self.smiteSlot, self.minion)
+						end
+					end
+				elseif self.eReady and not self.smiteReady then
+					self.smiteDamage = self.spell
+					if self.minion.health <= self.smiteDamage then 
+						CastSpell(_E, self.minion)
+					end
+				elseif not self.eReady and self.smiteReady then
+					self.smiteDamage = self.smite
+					if self.minion.health <= self.smiteDamage then 
+						CastSpell(self.smiteSlot, self.minion)
+					end
+				end
+			else
+				self.smiteDamage = self.smite
+				if self.minion.health <= self.smiteDamage and self.smiteReady then 
+					CastSpell(self.smiteSlot, self.minion)
+				end
+			end
+		elseif GetDistance(self.minion) <= 550 then
+			self.smiteDamage = self.smite
+			if self.minion.health <= self.smiteDamage then 
+				CastSpell(self.smiteSlot, self.minion)
 			end
 		end
 	end
