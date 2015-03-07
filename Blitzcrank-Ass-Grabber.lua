@@ -1,6 +1,6 @@
 if myHero.charName ~= "Blitzcrank" then return end
 
-local  BlitzcrankAssGrabber_Version = 3.1
+local  BlitzcrankAssGrabber_Version = 3.2
 
 class "SxUpdate"
 function SxUpdate:__init(LocalVersion, Host, VersionPath, ScriptPath, SavePath, Callback)
@@ -166,8 +166,8 @@ function CustomOnTick()
 end
 
 function Buff()
-	for i = 1, myHero.buffCount, 1 do      
-		local buff = myHero:getBuff(i)
+	for i = 1, unit.buffCount, 1 do      
+		local buff = unit:getBuff(i)
 		if buff.name == "rocketgrab2" and not unit.isMe and unit.type == myHero.type then 
 			nbgrabwin = nbgrabwin + 1
 			missedgrab = (nbgrabtotal-nbgrabwin)
