@@ -14,7 +14,7 @@
                                                                                              
 ]]
 
-local AutoSmite_Version = 3.3
+local AutoSmite_Version = 3.4
 
 class "SxUpdate"
 function SxUpdate:__init(LocalVersion, Host, VersionPath, ScriptPath, SavePath, Callback)
@@ -391,7 +391,6 @@ end
 function Chogath:CheckSmite()
 	self.minion = self.MyOwnMinionSmiteManager:CheckMinion()
 	if self.minion then
-		print(self.spell)
 		if GetDistance(self.minion) <= 350 then
 			if _G.myMenu.settings.useR then
 				if self.rReady and self.smiteReady then
@@ -781,7 +780,6 @@ function Shaco:OnTick()
 	self.smite = math.max(20*myHero.level+370,30*myHero.level+330,40*myHero.level+240,50*myHero.level+100)
 	if self.minion then
 		self.spell = getDmg("E", self.minion, myHero)
-		print(self.spell)
 	end
 	if _G.myMenu.settings.Smite then
 		self:CheckSmite()
