@@ -14,7 +14,7 @@
                                                                                              
 ]]
 
-local AutoSmite_Version = 3.1
+local AutoSmite_Version = 3.2
 
 class "SxUpdate"
 function SxUpdate:__init(LocalVersion, Host, VersionPath, ScriptPath, SavePath, Callback)
@@ -81,6 +81,7 @@ class 'Chogath'
 class 'Nunu'
 class 'Volibear'
 class 'Smite'
+class'Shaco'
 
 function OnLoad()
 	if ForceReload then return end
@@ -95,6 +96,9 @@ function OnLoad()
 	elseif myHero.charName == "Volibear" then
 		Volibear()
 		print("<font color=\"#F0Ff8d\"><b>AutoSmite: </b></font> <font color=\"#FF0F0F\">Successfully Load Volibear</b></font>")
+	elseif myHero.charName == "Shaco" then
+		Shaco()
+		print("<font color=\"#F0Ff8d\"><b>AutoSmite: </b></font> <font color=\"#FF0F0F\">Successfully Load Shaco</b></font>")
 	else
 		Smite()
 		print("<font color=\"#F0Ff8d\"><b>AutoSmite: </b></font> <font color=\"#FF0F0F\">Successfully Load</b></font>")
@@ -371,6 +375,7 @@ function Chogath:OnTick()
 	self.smiteReady = self.MyOwnMinionSmiteManager:smiteReady()
 	self.rReady = (myHero:CanUseSpell(_R) == READY)
 	self.smite = math.max(20*myHero.level+370,30*myHero.level+330,40*myHero.level+240,50*myHero.level+100)
+	self.spell = 1000 + (0.7*myHero.ap)
 	if _G.myMenu.settings.Smite then
 		self:CheckSmite()
 	end
@@ -379,7 +384,6 @@ end
 function Chogath:CheckSmite()
 	self.minion = self.MyOwnMinionSmiteManager:CheckMinion()
 	if self.minion then
-		self.spell = 1000 + (0.7*myHero.ap)
 		print(self.spell)
 		if GetDistance(self.minion) <= 350 then
 			if _G.myMenu.settings.useR then
@@ -437,6 +441,7 @@ function Nunu:OnTick()
 	self.smiteReady = self.MyOwnMinionSmiteManager:smiteReady()
 	self.qReady = (myHero:CanUseSpell(_Q) == READY)
 	self.smiteDamage = nil
+	self.spell = self:qDamage()
 	if _G.myMenu.settings.Smite then
 		self:CheckSmite()
 	end
@@ -511,7 +516,6 @@ function Nunu:CheckSmite()
 	self.minion = self.MyOwnMinionSmiteManager:CheckMinion()
 	if self.minion then
 		self.smite = math.max(20*myHero.level+370,30*myHero.level+330,40*myHero.level+240,50*myHero.level+100)
-		self.spell = self:qDamage()
 	
 		if GetDistance(self.minion) <= 350 then
 			if _G.myMenu.settings.useQ then
@@ -626,6 +630,9 @@ function Volibear:OnTick()
 	self.smiteReady = self.MyOwnMinionSmiteManager:smiteReady()
 	self.wReady = (myHero:CanUseSpell(_W) == READY)
 	self.smite = math.max(20*myHero.level+370,30*myHero.level+330,40*myHero.level+240,50*myHero.level+100)
+	if self.minion then
+		self.spell = getDmg("W", self.minion, myHero) 
+	end
 	if _G.myMenu.settings.Smite then
 		self:CheckSmite()
 	end
@@ -634,7 +641,6 @@ end
 function Volibear:CheckSmite()
 	self.minion = self.MyOwnMinionSmiteManager:CheckMinion()
 	if self.minion then
-		self.spell = getDmg("W", self.minion, myHero) 
 		if GetDistance(self.minion) <= 350 then
 			if _G.myMenu.settings.useW then
 				if self.wReady and self.smiteReady then
@@ -670,6 +676,147 @@ function Volibear:CheckSmite()
 			self.smiteDamage = self.smite
 			if self.minion.health <= self.smiteDamage then 
 				CastSpell(self.smiteSlot, self.minion)
+			end
+		end
+	end
+end
+
+--------------------------------------------------------------------------
+--------------------------------------------------------------------------
+--[[ 			SHACO			]]
+--------------------------------------------------------------------------
+--------------------------------------------------------------------------
+
+function Shaco:__init()
+	self.MyOwnMinionSmiteManager = MinionSmiteManager()
+	self.MyOwnMinionSmiteManager:Menu()
+	_G.myMenu.settings:addParam("info", "----------------------------------------", SCRIPT_PARAM_INFO, "")
+	_G.myMenu.settings:addParam("useE","Use (E)", SCRIPT_PARAM_ONOFF, true)
+	self.smiteSlot = self.MyOwnMinionSmiteManager:foundSmite()
+	self.smite = math.max(20*myHero.level+370,30*myHero.level+330,40*myHero.level+240,50*myHero.level+100)
+	self.spell = nil
+	self.smiteDamage = nil
+	self.eReady = nil
+	self.smiteReady = nil
+	AddTickCallback(function() self:OnTick() end)
+	AddDrawCallback(function() self:OnDraw() end)
+end
+
+function Shaco:OnDraw()
+	if not myHero.dead then
+		if _G.myMenu.Draw.drawSmite then 
+			if self.eReady and _G.myMenu.settings.useE then
+				DrawCircle(myHero.x, myHero.y, myHero.z, 625, RGB(100, 44, 255))
+			end
+			if self.smiteReady then
+				DrawCircle(myHero.x, myHero.y, myHero.z, 550, RGB(100, 44, 255))
+			end
+		end
+		if _G.myMenu.Draw.drawSmitable then
+			self.minion = self.MyOwnMinionSmiteManager:CheckMinion()
+			if self.minion then
+				if GetDistance(self.minion) <= 625 and GetDistance(self.minion) > 550 then
+					if _G.myMenu.settings.useE then
+						if self.eReady then
+							self.drawDamage = self.minion.health - self.spell
+							if self.minion.health <= self.spell then 
+								DrawText3D("SMITABLE (E)",self.minion.x, self.minion.y+450, self.minion.z, 24, 0xff00ff00)
+							else
+								DrawText3D(tostring(math.ceil(self.drawDamage)),self.minion.x, self.minion.y+450, self.minion.z, 24, 0xFFFF0000)
+							end
+						end
+					end
+				elseif GetDistance(self.minion) <= 550 then
+					if _G.myMenu.settings.useE then
+						if self.eReady and self.smiteReady then
+						self.drawDamage = self.minion.health - (self.spell + self.smite)
+							if self.minion.health <= (self.spell - self.smite) then 
+								DrawText3D("SMITABLE (E + SMITE)",self.minion.x, self.minion.y+450, self.minion.z, 24, 0xff00ff00)
+							else
+								DrawText3D(tostring(math.ceil(self.drawDamage)),self.minion.x, self.minion.y+450, self.minion.z, 24, 0xFFFF0000)
+							end
+						elseif self.eReady and not self.smiteReady then
+						self.drawDamage = self.minion.health - self.spell 
+							if self.minion.health <= self.spell then
+								DrawText3D("SMITABLE (E)",self.minion.x, self.minion.y+450, self.minion.z, 24, 0xff00ff00)
+							else
+								DrawText3D(tostring(math.ceil(self.drawDamage)),self.minion.x, self.minion.y+450, self.minion.z, 24, 0xFFFF0000)
+							end
+						elseif not self.eReady and self.smiteReady then
+						self.drawDamage = self.minion.health - self.smite 
+							if self.minion.health <= self.smite then
+								DrawText3D("SMITABLE (SMITE)",self.minion.x, self.minion.y+450, self.minion.z, 24, 0xff00ff00)
+							else
+								DrawText3D(tostring(math.ceil(self.drawDamage)),self.minion.x, self.minion.y+450, self.minion.z, 24, 0xFFFF0000)
+							end
+						end
+					else
+						if self.smiteReady then
+						elf.drawDamage = self.minion.health - self.smite 
+							if self.minion.health <= self.smite then
+								DrawText3D("SMITABLE (SMITE)",self.minion.x, self.minion.y+450, self.minion.z, 24, 0xff00ff00)
+							else
+								DrawText3D(tostring(math.ceil(self.drawDamage)),self.minion.x, self.minion.y+450, self.minion.z, 24, 0xFFFF0000)
+							end
+						end
+					end	
+				end
+			end
+		end		
+	end
+end
+
+function Shaco:OnTick()
+	self.smiteReady = self.MyOwnMinionSmiteManager:smiteReady()
+	self.eReady = (myHero:CanUseSpell(_E) == READY)
+	self.smite = math.max(20*myHero.level+370,30*myHero.level+330,40*myHero.level+240,50*myHero.level+100)
+	if self.minion then
+		self.spell = getDmg("E", self.minion, myHero)
+		print(self.spell)
+	end
+	if _G.myMenu.settings.Smite then
+		self:CheckSmite()
+	end
+end
+
+function Shaco:CheckSmite()
+	self.minion = self.MyOwnMinionSmiteManager:CheckMinion()
+	if self.minion then
+		if GetDistance(self.minion) <= 625 and GetDistance(self.minion) > 550 then
+			if _G.myMenu.settings.useE then
+				if self.eReady then
+					if self.minion.health <= self.spell then 
+						CastSpell(_E, self.minion)
+					end
+				end
+			end
+		elseif GetDistance(self.minion) <= 550 then
+			if _G.myMenu.settings.useE then
+				if self.eReady and self.smiteReady then
+					if self.smite > self.spell then
+						if self.minion.health - self.smite <= self.spell then 
+							CastSpell(_E, self.minion)
+						end
+					else
+						if self.minion.health - self.spell <= self.smite then 
+							CastSpell(self.smiteSlot, self.minion)
+						end
+					end
+				elseif self.eReady and not self.smiteReady then
+					if self.minion.health <= self.spell then 
+						CastSpell(_E, self.minion)
+					end
+				elseif not self.eReady and self.smiteReady then
+					if self.minion.health <= self.smite then 
+						CastSpell(self.smiteSlot, self.minion)
+					end
+				end
+			else
+				if self.smiteReady then
+					if self.minion.health <= self.smite then 
+						CastSpell(self.smiteSlot, self.minion)
+					end
+				end
 			end
 		end
 	end
