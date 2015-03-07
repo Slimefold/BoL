@@ -14,7 +14,7 @@
                                                                                              
 ]]
 
-local AutoSmite_Version = 3.4
+local AutoSmite_Version = 3.5
 
 class "SxUpdate"
 function SxUpdate:__init(LocalVersion, Host, VersionPath, ScriptPath, SavePath, Callback)
@@ -291,7 +291,7 @@ function Smite:CheckSmite()
 end
 
 function Smite:OnDraw()
-	if not myHero.dead and self.smiteReady then
+	if not myHero.dead and self.smiteReady and _G.myMenu.settings.Smite then
 		if _G.myMenu.Draw.drawSmite then
 			DrawCircle(myHero.x, myHero.y, myHero.z, 550, RGB(100, 44, 255))
 		end
@@ -331,7 +331,7 @@ function Chogath:__init()
 end
 
 function Chogath:OnDraw()
-	if not myHero.dead then
+	if not myHero.dead and _G.myMenu.settings.Smite then
 		if _G.myMenu.Draw.drawSmite then 
 			if self.rReady and _G.myMenu.settings.useR then
 				DrawCircle(myHero.x, myHero.y, myHero.z, 350, RGB(100, 44, 255))
@@ -455,7 +455,7 @@ function Nunu:OnTick()
 end
 
 function Nunu:OnDraw()
-	if not myHero.dead then
+	if not myHero.dead and _G.myMenu.settings.Smite then
 		if _G.myMenu.Draw.drawSmite and self.qReady and _G.myMenu.settings.useQ then
 			DrawCircle(myHero.x, myHero.y, myHero.z, 350, RGB(100, 44, 255))
 		end
@@ -587,7 +587,7 @@ function Volibear:__init()
 end
 
 function Volibear:OnDraw()
-	if not myHero.dead then
+	if not myHero.dead and _G.myMenu.settings.Smite then
 		if _G.myMenu.Draw.drawSmite then 
 			if self.wReady and _G.myMenu.settings.useW then
 				DrawCircle(myHero.x, myHero.y, myHero.z, 350, RGB(100, 44, 255))
@@ -711,7 +711,7 @@ function Shaco:__init()
 end
 
 function Shaco:OnDraw()
-	if not myHero.dead then
+	if not myHero.dead and _G.myMenu.settings.Smite then
 		if _G.myMenu.Draw.drawSmite then 
 			if self.eReady and _G.myMenu.settings.useE then
 				DrawCircle(myHero.x, myHero.y, myHero.z, 625, RGB(100, 44, 255))
@@ -855,7 +855,8 @@ function Olaf:__init()
 end
 
 function Olaf:OnDraw()
-	if not myHero.dead then
+
+	if not myHero.dead and _G.myMenu.settings.Smite then
 		if _G.myMenu.Draw.drawSmite then 
 			if self.eReady and _G.myMenu.settings.useE then
 				DrawCircle(myHero.x, myHero.y, myHero.z, 350, RGB(100, 44, 255))
