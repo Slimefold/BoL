@@ -1,6 +1,6 @@
 if myHero.charName ~= "Blitzcrank" then return end
 
-local  BlitzcrankAssGrabber_Version = 3.0
+local  BlitzcrankAssGrabber_Version = 3.1
 
 class "SxUpdate"
 function SxUpdate:__init(LocalVersion, Host, VersionPath, ScriptPath, SavePath, Callback)
@@ -153,6 +153,7 @@ function CustomOnTick()
 	autoComboKey = Settings.autoCombo.autoCombo
 	Checks()
 	
+	Buff()
 	KillSteall()
 	
 	if Target ~= nil then
@@ -161,6 +162,17 @@ function CustomOnTick()
 		elseif autoComboKey then
 			autoCombo(Target)
 		end
+	end
+end
+
+function Buff()
+	for i = 1, myHero.buffCount, 1 do      
+		local buff = myHero:getBuff(i)
+		if buff.name == "rocketgrab2" and not unit.isMe and unit.type == myHero.type then 
+			nbgrabwin = nbgrabwin + 1
+			missedgrab = (nbgrabtotal-nbgrabwin)
+			pourcentage =((nbgrabwin*100)/nbgrabtotal)
+		end	
 	end
 end
 
@@ -258,15 +270,6 @@ function CustomOnProcessSpell(unit, spell)
 		missedgrab = (nbgrabtotal-nbgrabwin)
 		pourcentage =((nbgrabwin*100)/nbgrabtotal)
     end
-end
-
-function CustomOnApplyBuff(source, unit, buff)
-	if ForceReload then return end
-	if buff.name == "rocketgrab2" and not unit.isMe and unit.type == myHero.type then 
-		nbgrabwin = nbgrabwin + 1
-		missedgrab = (nbgrabtotal-nbgrabwin)
-		pourcentage =((nbgrabwin*100)/nbgrabtotal)
-	end	
 end
 
 function KillSteall()
