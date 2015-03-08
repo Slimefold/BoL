@@ -14,7 +14,7 @@
                                                                                              
 ]]
 
-local AutoSmite_Version = 3.5
+local AutoSmite_Version = 3.6
 
 class "SxUpdate"
 function SxUpdate:__init(LocalVersion, Host, VersionPath, ScriptPath, SavePath, Callback)
@@ -874,7 +874,7 @@ function Olaf:OnDraw()
 					if self.minion.health > self.smiteDamage then
 						DrawText3D(tostring(math.ceil(self.drawDamage)),self.minion.x, self.minion.y+450, self.minion.z, 24, 0xFFFF0000)
 					else
-						DrawText3D("SMITABLE (R + SMITE)",self.minion.x, self.minion.y+450, self.minion.z, 24, 0xff00ff00)
+						DrawText3D("SMITABLE (E + SMITE)",self.minion.x, self.minion.y+450, self.minion.z, 24, 0xff00ff00)
 					end
 				elseif self.smiteReady and not self.eReady then
 					self.drawDamage = self.minion.health - self.smite
@@ -888,7 +888,7 @@ function Olaf:OnDraw()
 					if self.minion.health > self.spell then
 						DrawText3D(tostring(math.ceil(self.drawDamage)),self.minion.x, self.minion.y+450, self.minion.z, 24, 0xFFFF0000)
 					else
-						DrawText3D("SMITABLE (R)",self.minion.x, self.minion.y+450, self.minion.z, 24, 0xff00ff00)
+						DrawText3D("SMITABLE (E)",self.minion.x, self.minion.y+450, self.minion.z, 24, 0xff00ff00)
 					end
 				end
 			elseif self.minion and GetDistance(self.minion) <= 550 and self.smiteReady then
