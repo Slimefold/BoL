@@ -1,4 +1,4 @@
-if myHero.charName ~= "Irelia" or not VIP_USER then return end 
+if myHero.charName ~= "Irelia" then return end 
 
 local  IreliaMasterBlades_Version = 1.7
 
