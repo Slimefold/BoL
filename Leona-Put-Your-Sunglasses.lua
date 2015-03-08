@@ -1,4 +1,4 @@
-if myHero.charName ~= "Leona" or not VIP_USER then return end
+if myHero.charName ~= "Leona" then return end
 
 local  LeonaPutYourSunglasses_Version = 2.5
 
