@@ -1,4 +1,4 @@
-if myHero.charName ~= "Darius" or not VIP_USER then return end 
+if myHero.charName ~= "Darius" then return end 
 
 local  DariusPentaDunk_Version = 1.5
 
