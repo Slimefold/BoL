@@ -145,7 +145,7 @@ function CustomOnTick()
 	end
 	if SAC then
 		if _G.AutoCarry.Keys.AutoCarry then
-			_G.AutoCarry.Orbwalker:Orbwalk(self.Target)
+			_G.AutoCarry.Orbwalker:Orbwalk(Target)
 		end
 	end
 	
