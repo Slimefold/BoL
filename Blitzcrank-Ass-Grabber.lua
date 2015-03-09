@@ -1,6 +1,6 @@
 if myHero.charName ~= "Blitzcrank" then return end
 
-local  BlitzcrankAssGrabber_Version = 3.3
+local  BlitzcrankAssGrabber_Version = 3.4
 
 class "SxUpdate"
 function SxUpdate:__init(LocalVersion, Host, VersionPath, ScriptPath, SavePath, Callback)
@@ -144,7 +144,9 @@ function CustomOnTick()
 		SxOrb:ForceTarget(Target)
 	end
 	if SAC then
-		AutoCarry.Orbwalker:Orbwalk(Target)
+		if _G.AutoCarry.Keys.AutoCarry then
+			_G.AutoCarry.Orbwalker:Orbwalk(self.Target)
+		end
 	end
 	
 	
