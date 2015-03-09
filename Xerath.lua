@@ -6,3 +6,4 @@
 
 ENJOY ]]
 
+local AutoUpdateXerath_Version = 1.0
