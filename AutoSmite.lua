@@ -14,7 +14,7 @@
                                                                                              
 ]]
 
-local AutoSmite_Version = 3.9
+local AutoSmite_Version = 4.0
 
 class "SxUpdate"
 function SxUpdate:__init(LocalVersion, Host, VersionPath, ScriptPath, SavePath, Callback)
@@ -116,7 +116,9 @@ end
 --------------------------------------------------------------------------
 
 function MinionSmiteManager:__init()
-	
+	self.Smite = { name = "summonersmite", range = 550, slot = nil, ready = false }
+	self.smiteSlot = self.MyOwnMinionSmiteManager:foundSmite()
+	if not self.smiteSlot then return end
 	self.MyMinionTable = { }
 	self.Smite = { name = "summonersmite", range = 550, slot = nil, ready = false }
 	
@@ -134,6 +136,7 @@ function MinionSmiteManager:__init()
 end
 
 function MinionSmiteManager:OnTick()
+
 	if _G.myMenu.settings.Smite and _G.myMenu.killsteal.killsteal then
 		self:killSteal()
 	end
