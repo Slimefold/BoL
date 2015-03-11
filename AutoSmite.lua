@@ -14,7 +14,7 @@
                                                                                              
 ]]
 
-local AutoSmite_Version = 3.7
+local AutoSmite_Version = 3.8
 
 class "SxUpdate"
 function SxUpdate:__init(LocalVersion, Host, VersionPath, ScriptPath, SavePath, Callback)
@@ -264,9 +264,10 @@ end
 --------------------------------------------------------------------------
 
 function Smite:__init()
+	self.smiteSlot = self.MyOwnMinionSmiteManager:foundSmite()
+	if not self.smiteSlot then return end
 	self.MyOwnMinionSmiteManager = MinionSmiteManager()
 	self.MyOwnMinionSmiteManager:Menu()
-	self.smiteSlot = self.MyOwnMinionSmiteManager:foundSmite()
 	self.smiteDamage = nil
 	self.smiteReady = nil
 	AddTickCallback(function() self:OnTick() end)
@@ -315,12 +316,13 @@ end
 --------------------------------------------------------------------------
 
 function Chogath:__init()
+	self.smiteSlot = self.MyOwnMinionSmiteManager:foundSmite()
+	if not self.smiteSlot then return end
 	self.MyOwnMinionSmiteManager = MinionSmiteManager()
 	self.MyOwnMinionSmiteManager:Menu()
 	_G.myMenu.settings:addParam("info", "----------------------------------------", SCRIPT_PARAM_INFO, "")
 	_G.myMenu.settings:addParam("useR","Use (R)", SCRIPT_PARAM_ONOFF, true)
 	_G.myMenu.settings:permaShow("useR")
-	self.smiteSlot = self.MyOwnMinionSmiteManager:foundSmite()
 	self.smite = math.max(20*myHero.level+370,30*myHero.level+330,40*myHero.level+240,50*myHero.level+100)
 	self.spell = 1000 + (0.7*myHero.ap)
 	self.smiteDamage = nil
@@ -432,12 +434,13 @@ end
 --------------------------------------------------------------------------
 
 function Nunu:__init()
+		self.smiteSlot = self.MyOwnMinionSmiteManager:foundSmite()
+	if not self.smiteSlot then return end
 	self.MyOwnMinionSmiteManager = MinionSmiteManager()
 	self.MyOwnMinionSmiteManager:Menu()
 	_G.myMenu.settings:addParam("info", "----------------------------------------", SCRIPT_PARAM_INFO, "")
 	_G.myMenu.settings:addParam("useQ","Use (Q)", SCRIPT_PARAM_ONOFF, true)
 	_G.myMenu.settings:permaShow("useQ")
-	self.smiteSlot = self.MyOwnMinionSmiteManager:foundSmite()
 	self.smiteDamage = nil
 	self.smiteReady = nil
 	AddTickCallback(function() self:OnTick() end)
@@ -571,12 +574,13 @@ end
 --------------------------------------------------------------------------
 
 function Volibear:__init()
+	self.smiteSlot = self.MyOwnMinionSmiteManager:foundSmite()
+	if not self.smiteSlot then return end
 	self.MyOwnMinionSmiteManager = MinionSmiteManager()
 	self.MyOwnMinionSmiteManager:Menu()
 	_G.myMenu.settings:addParam("info", "----------------------------------------", SCRIPT_PARAM_INFO, "")
 	_G.myMenu.settings:addParam("useW","Use (W)", SCRIPT_PARAM_ONOFF, true)
 	_G.myMenu.settings:permaShow("useW")
-	self.smiteSlot = self.MyOwnMinionSmiteManager:foundSmite()
 	self.smite = math.max(20*myHero.level+370,30*myHero.level+330,40*myHero.level+240,50*myHero.level+100)
 	self.spell = nil
 	self.smiteDamage = nil
@@ -696,11 +700,12 @@ end
 --------------------------------------------------------------------------
 
 function Shaco:__init()
+	self.smiteSlot = self.MyOwnMinionSmiteManager:foundSmite()
+	if not self.smiteSlot then return end
 	self.MyOwnMinionSmiteManager = MinionSmiteManager()
 	self.MyOwnMinionSmiteManager:Menu()
 	_G.myMenu.settings:addParam("info", "----------------------------------------", SCRIPT_PARAM_INFO, "")
 	_G.myMenu.settings:addParam("useE","Use (E)", SCRIPT_PARAM_ONOFF, true)
-	self.smiteSlot = self.MyOwnMinionSmiteManager:foundSmite()
 	self.smite = math.max(20*myHero.level+370,30*myHero.level+330,40*myHero.level+240,50*myHero.level+100)
 	self.spell = nil
 	self.smiteDamage = nil
@@ -836,6 +841,8 @@ end
 --------------------------------------------------------------------------
 
 function Olaf:__init()
+	self.smiteSlot = self.MyOwnMinionSmiteManager:foundSmite()
+	if not self.smiteSlot then return end
 	self.MyOwnMinionSmiteManager = MinionSmiteManager()
 	self.MyOwnMinionSmiteManager:Menu()
 	_G.myMenu.settings:addParam("info", "----------------------------------------", SCRIPT_PARAM_INFO, "")
@@ -844,7 +851,6 @@ function Olaf:__init()
 	_G.myMenu.settings:addParam("info", "On = Smite then (E) | Off = (E) then Smite", SCRIPT_PARAM_INFO, "")
 	_G.myMenu.settings:permaShow("useE")
 	_G.myMenu.settings:permaShow("smiteFirst")
-	self.smiteSlot = self.MyOwnMinionSmiteManager:foundSmite()
 	self.smite = math.max(20*myHero.level+370,30*myHero.level+330,40*myHero.level+240,50*myHero.level+100)
 	self.spell = nil
 	self.smiteDamage = nil
