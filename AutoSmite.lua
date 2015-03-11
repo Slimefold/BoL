@@ -14,7 +14,7 @@
                                                                                              
 ]]
 
-local AutoSmite_Version = 3.8
+local AutoSmite_Version = 3.9
 
 class "SxUpdate"
 function SxUpdate:__init(LocalVersion, Host, VersionPath, ScriptPath, SavePath, Callback)
