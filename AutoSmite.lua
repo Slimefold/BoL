@@ -14,7 +14,7 @@
                                                                                              
 ]]
 
-local AutoSmite_Version = 4.0
+local AutoSmite_Version = 4.1
 
 class "SxUpdate"
 function SxUpdate:__init(LocalVersion, Host, VersionPath, ScriptPath, SavePath, Callback)
@@ -117,7 +117,7 @@ end
 
 function MinionSmiteManager:__init()
 	self.Smite = { name = "summonersmite", range = 550, slot = nil, ready = false }
-	self.smiteSlot = self.MyOwnMinionSmiteManager:foundSmite()
+	self.smiteSlot = self:foundSmite()
 	if not self.smiteSlot then return end
 	self.MyMinionTable = { }
 	self.Smite = { name = "summonersmite", range = 550, slot = nil, ready = false }
@@ -267,9 +267,9 @@ end
 --------------------------------------------------------------------------
 
 function Smite:__init()
+	self.MyOwnMinionSmiteManager = MinionSmiteManager()
 	self.smiteSlot = self.MyOwnMinionSmiteManager:foundSmite()
 	if not self.smiteSlot then return end
-	self.MyOwnMinionSmiteManager = MinionSmiteManager()
 	self.MyOwnMinionSmiteManager:Menu()
 	self.smiteDamage = nil
 	self.smiteReady = nil
@@ -319,9 +319,9 @@ end
 --------------------------------------------------------------------------
 
 function Chogath:__init()
+	self.MyOwnMinionSmiteManager = MinionSmiteManager()
 	self.smiteSlot = self.MyOwnMinionSmiteManager:foundSmite()
 	if not self.smiteSlot then return end
-	self.MyOwnMinionSmiteManager = MinionSmiteManager()
 	self.MyOwnMinionSmiteManager:Menu()
 	_G.myMenu.settings:addParam("info", "----------------------------------------", SCRIPT_PARAM_INFO, "")
 	_G.myMenu.settings:addParam("useR","Use (R)", SCRIPT_PARAM_ONOFF, true)
@@ -437,9 +437,9 @@ end
 --------------------------------------------------------------------------
 
 function Nunu:__init()
-		self.smiteSlot = self.MyOwnMinionSmiteManager:foundSmite()
-	if not self.smiteSlot then return end
 	self.MyOwnMinionSmiteManager = MinionSmiteManager()
+	self.smiteSlot = self.MyOwnMinionSmiteManager:foundSmite()
+	if not self.smiteSlot then return end
 	self.MyOwnMinionSmiteManager:Menu()
 	_G.myMenu.settings:addParam("info", "----------------------------------------", SCRIPT_PARAM_INFO, "")
 	_G.myMenu.settings:addParam("useQ","Use (Q)", SCRIPT_PARAM_ONOFF, true)
@@ -577,9 +577,9 @@ end
 --------------------------------------------------------------------------
 
 function Volibear:__init()
+	self.MyOwnMinionSmiteManager = MinionSmiteManager()
 	self.smiteSlot = self.MyOwnMinionSmiteManager:foundSmite()
 	if not self.smiteSlot then return end
-	self.MyOwnMinionSmiteManager = MinionSmiteManager()
 	self.MyOwnMinionSmiteManager:Menu()
 	_G.myMenu.settings:addParam("info", "----------------------------------------", SCRIPT_PARAM_INFO, "")
 	_G.myMenu.settings:addParam("useW","Use (W)", SCRIPT_PARAM_ONOFF, true)
@@ -703,9 +703,9 @@ end
 --------------------------------------------------------------------------
 
 function Shaco:__init()
+	self.MyOwnMinionSmiteManager = MinionSmiteManager()
 	self.smiteSlot = self.MyOwnMinionSmiteManager:foundSmite()
 	if not self.smiteSlot then return end
-	self.MyOwnMinionSmiteManager = MinionSmiteManager()
 	self.MyOwnMinionSmiteManager:Menu()
 	_G.myMenu.settings:addParam("info", "----------------------------------------", SCRIPT_PARAM_INFO, "")
 	_G.myMenu.settings:addParam("useE","Use (E)", SCRIPT_PARAM_ONOFF, true)
@@ -844,9 +844,9 @@ end
 --------------------------------------------------------------------------
 
 function Olaf:__init()
+	self.MyOwnMinionSmiteManager = MinionSmiteManager()
 	self.smiteSlot = self.MyOwnMinionSmiteManager:foundSmite()
 	if not self.smiteSlot then return end
-	self.MyOwnMinionSmiteManager = MinionSmiteManager()
 	self.MyOwnMinionSmiteManager:Menu()
 	_G.myMenu.settings:addParam("info", "----------------------------------------", SCRIPT_PARAM_INFO, "")
 	_G.myMenu.settings:addParam("useE","Use (E)", SCRIPT_PARAM_ONOFF, true)
