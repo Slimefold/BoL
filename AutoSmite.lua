@@ -189,7 +189,7 @@ end
 function MinionSmiteManager:CheckMinion()
 	for i, minion in pairs(self.MyMinionTable) do
 		self.isMinion = self.MyMinionTable[i]
-		if GetDistance(self.isMinion) <= 1500 then
+		if GetDistance(self.isMinion) <= 1200 then
 			if self:ValidMinion(self.isMinion) then
 				if self.isMinion.name == "SRU_Murkwolf8.1.1" or self.isMinion.name == "SRU_Murkwolf2.1.1" then
 					if _G.myMenu.settings.wolve then
