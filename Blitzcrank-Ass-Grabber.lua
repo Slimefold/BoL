@@ -1,6 +1,6 @@
 if myHero.charName ~= "Blitzcrank" then return end
 
-local  BlitzcrankAssGrabber_Version = 3.6
+local  BlitzcrankAssGrabber_Version = 3.7
 
 class "SxUpdate"
 function SxUpdate:__init(LocalVersion, Host, VersionPath, ScriptPath, SavePath, Callback)
@@ -264,7 +264,7 @@ function CustomOnProcessSpell(unit, spell)
 end
 
 function CustomOnApplyBuff(unit,source,buff)
-	if unit.isMe and buff.name == "rocketgrab2" and unit.type == myHero.type then
+	if unit and unit.isMe and buff.name == "rocketgrab2" and unit.type == myHero.type then
 		nbgrabwin=nbgrabwin+0.5
 		missedgrab = missedgrab - 0.5
 		if Settings.misc.autoE then
