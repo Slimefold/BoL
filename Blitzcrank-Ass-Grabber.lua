@@ -1,6 +1,6 @@
 if myHero.charName ~= "Blitzcrank" then return end
 
-local  BlitzcrankAssGrabber_Version = 3.5
+local  BlitzcrankAssGrabber_Version = 3.6
 
 class "SxUpdate"
 function SxUpdate:__init(LocalVersion, Host, VersionPath, ScriptPath, SavePath, Callback)
@@ -104,7 +104,8 @@ function OnLoad()
 		AddApplyBuffCallback(CustomOnApplyBuff)
 		AddDrawCallback(CustomOnDraw)		
 		AddProcessSpellCallback(CustomOnProcessSpell)
-		AddTickCallback(CustomOnTick)		
+		AddTickCallback(CustomOnTick)
+		AddApplyBuffCallback(CustomOnApplyBuff)		
 	end, 6)
 end
 
@@ -171,16 +172,16 @@ function CustomOnDraw()
 	if Settings.drawstats.stats then
 		UpdateWindow()
 		if Settings.drawstats.pourcentage then
-			DrawText("Percentage Grab done : " .. tostring(math.ceil(pourcentage)) .. "%" ,18, WINDOW_H * 0.02,WINDOW_W * 0.4, 0xff00ff00)
+			DrawText("Percentage Grab done : " .. tostring(math.ceil(pourcentage)) .. "%" ,18, WINDOW_H * 0.02,WINDOW_W * 0.2, 0xff00ff00)
 		end
 		if Settings.drawstats.grabdone then
-			DrawText("Grab Done : "..tostring(nbgrabwin),18, WINDOW_H * 0.02, WINDOW_W * 0.415, 0xff00ff00)
+			DrawText("Grab Done : "..tostring(nbgrabwin),18, WINDOW_H * 0.02, WINDOW_W * 0.215, 0xff00ff00)
 		end
 		if Settings.drawstats.grabfail then
-			DrawText("Grab Miss : "..tostring(missedgrab),18, WINDOW_H * 0.02, WINDOW_W * 0.430, 0xFFFF0000)
+			DrawText("Grab Miss : "..tostring(missedgrab),18, WINDOW_H * 0.02, WINDOW_W * 0.230, 0xFFFF0000)
 		end
 		if Settings.drawstats.mana and manaShield ~= nil then
-			DrawText("Passive's Shield : ".. tostring(math.ceil(manaShield)) .. "HP" ,18, WINDOW_H * 0.02, WINDOW_W * 0.445, 0xffffff00)
+			DrawText("Passive's Shield : ".. tostring(math.ceil(manaShield)) .. "HP" ,18, WINDOW_H * 0.02, WINDOW_W * 0.245, 0xffffff00)
 		end
 	end
 	if not myHero.dead and not Settings.drawing.mDraw then	
@@ -260,6 +261,16 @@ function CustomOnProcessSpell(unit, spell)
 		missedgrab = (nbgrabtotal-nbgrabwin)
 		pourcentage =((nbgrabwin*100)/nbgrabtotal)
     end
+end
+
+function CustomOnApplyBuff(unit,source,buff)
+	if unit.isMe and buff.name == "rocketgrab2" and unit.type == myHero.type then
+		nbgrabwin=nbgrabwin+0.5
+		missedgrab = missedgrab - 0.5
+		if Settings.misc.autoE then
+			CastE(unit)
+		end
+	end
 end
 
 function KillSteall()
@@ -387,7 +398,7 @@ function Menu()
 		Settings.killsteal:permaShow("useR")
 	
 	Settings:addSubMenu("["..myHero.charName.."] - Misc", "misc")
-		Settings.misc:addParam("autoE", "Use (E) after a Successful Grab (Broken)", SCRIPT_PARAM_ONOFF, true)
+		Settings.misc:addParam("autoE", "Use (E) after a Successful Grab", SCRIPT_PARAM_ONOFF, true)
 		Settings.misc:permaShow("autoE")
 
 	Settings:addSubMenu("["..myHero.charName.."] - Draw Settings", "drawing")	
