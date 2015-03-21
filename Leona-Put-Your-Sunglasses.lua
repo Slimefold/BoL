@@ -76,15 +76,26 @@ end
 	
 if FileExist(LIB_PATH .. "/VPrediction.lua") then
 	require("VPrediction")
+	VP = VPrediction()
+	if VP.version >= 3 then	
+		SxUpdate(0,
+			"raw.githubusercontent.com",
+			"/SidaBoL/Scripts/blob/master/Common/VPrediction.version",
+			"/SidaBoL/Scripts/blob/master/Common/VPrediction.lua",
+			LIB_PATH.."/VPrediction.lua",
+			function(NewVersion) if NewVersion > 0 then print("<font color=\"#F0Ff8d\"><b>VPrediction: </b></font> <font color=\"#FF0F0F\">Updated to "..NewVersion..". Please Reload with 2x F9</b></font>") ForceReload = true end 
+		end)
+	end
 else
 	SxUpdate(0,
 		"raw.githubusercontent.com",
-		"/Ralphlol/BoLGit/master/VPrediction.version",
-		"/Ralphlol/BoLGit/master/VPrediction.lua",
+		"/SidaBoL/Scripts/blob/master/Common/VPrediction.version",
+		"/SidaBoL/Scripts/blob/master/Common/VPrediction.lua",
 		LIB_PATH.."/VPrediction.lua",
 		function(NewVersion) if NewVersion > 0 then print("<font color=\"#F0Ff8d\"><b>VPrediction: </b></font> <font color=\"#FF0F0F\">Updated to "..NewVersion..". Please Reload with 2x F9</b></font>") ForceReload = true end 
 	end)
 end
+
 function OnLoad()
 	
 	print("<b><font color=\"#FF001E\"></font></b><font color=\"#FF980F\"> Have a Good Game </font><font color=\"#FF001E\">| AMBER |</font>")
