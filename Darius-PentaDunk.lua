@@ -291,7 +291,6 @@ if GetDistance(unit) <= SkillR.range and SkillR.ready then
 		local dmgR = getDmg("R", unit, myHero)
 		dmgR = dmgR + (dmgR*(0.2*DariusP))
 			if health < dmgR*0.95 and ValidTarget(unit) then
-				print(DariusP)
 				Packet("S_CAST", {spellId = _R, targetNetworkId = unit.networkID}):send()
 			end
 		end
