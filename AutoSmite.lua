@@ -14,7 +14,7 @@
                                                                                              
 ]]
 
-local AutoSmite_Version = 4.1
+local AutoSmite_Version = 4.2
 
 class "SxUpdate"
 function SxUpdate:__init(LocalVersion, Host, VersionPath, ScriptPath, SavePath, Callback)
@@ -177,12 +177,14 @@ function MinionSmiteManager:smiteReady()
 end
 
 function MinionSmiteManager:killSteal()
-	for _, unit in pairs(GetEnemyHeroes()) do
-		self.health = unit.health
-		self.smiteDmgOnChamp = 20 + (8 *myHero.level)
-		if self.health < self.smiteDmgOnChamp * 0.95 and ValidTarget(unit) and GetDistance(unit) <= 550 then
-			CastSpell(self:foundSmite(), unit)
-		end	
+	if self:smiteReady() then
+		for _, unit in pairs(GetEnemyHeroes()) do
+			self.health = unit.health
+			self.smiteDmgOnChamp = 20 + (8 *myHero.level)
+			if self.health < self.smiteDmgOnChamp * 0.95 and ValidTarget(unit) and GetDistance(unit) <= 550 then
+				CastSpell(self:foundSmite(), unit)
+			end
+		end
 	end
 end
 
