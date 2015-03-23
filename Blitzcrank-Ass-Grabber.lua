@@ -1,6 +1,6 @@
 if myHero.charName ~= "Blitzcrank" then return end
 
-local  BlitzcrankAssGrabber_Version = 3.7
+local  BlitzcrankAssGrabber_Version = 3.8
 
 class "SxUpdate"
 function SxUpdate:__init(LocalVersion, Host, VersionPath, ScriptPath, SavePath, Callback)
@@ -434,7 +434,7 @@ function Menu()
 end
 
 function Variables()
-	SkillQ = { name = "Rocket Grab", range = 925, delay = 0.25, speed = math.huge, width = 80, ready = false }
+	SkillQ = { name = "Rocket Grab", range = 925, delay = 0.55, speed = math.huge, width = 80, ready = false }
 	SkillW = { name = "Overdrive", range = nil, delay = 0.375, speed = math.huge, width = nil, ready = false }
 	SkillE = { name = "Power Fist", range = 280, delay = nil, speed = nil, width = nil, ready = false }
 	SkillR = { name = "Static Field", range = 590, delay = 0.5, speed = math.huge, angle = 80, ready = false }
