@@ -1,6 +1,6 @@
 if myHero.charName ~= "Darius" or not VIP_USER then return end 
 
-local  DariusPentaDunk_Version = 1.7
+local  DariusPentaDunk_Version = 1.6
 
 class "SxUpdate"
 function SxUpdate:__init(LocalVersion, Host, VersionPath, ScriptPath, SavePath, Callback)
@@ -382,7 +382,7 @@ function Darius:CastR(unit)
 			local dmgR = getDmg("R", unit, myHero)
 			dmgR = dmgR + (dmgR*(0.2*self.Hemoragie[i]))
 			if unit.health < dmgR * 0.95 then
-				Packet("S_CAST", {spellId = _R, targetNetworkId = unit.networkID}):send()
+				CastSpell(_R, unit)
 			end
 		end
 	end
@@ -398,7 +398,7 @@ function Darius:KillSteal()
 						local dmgR = getDmg("R", unit, myHero)
 						dmgR = dmgR + (dmgR*(0.2*self.Hemoragie[i]))
 						if unit.health < dmgR * 0.95 then
-							Packet("S_CAST", {spellId = _R, targetNetworkId = unit.networkID}):send()
+							CastSpell(_R, unit)
 						end
 					end
 				end	
