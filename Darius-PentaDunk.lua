@@ -1,6 +1,6 @@
 if myHero.charName ~= "Darius" or not VIP_USER then return end 
 
-local  DariusPentaDunk_Version = 1.7
+local  DariusPentaDunk_Version = 1.8
 
 class "SxUpdate"
 function SxUpdate:__init(LocalVersion, Host, VersionPath, ScriptPath, SavePath, Callback)
@@ -162,7 +162,7 @@ function Darius:myMenu()
 		self.Settings.combo:addParam("UseR", "Use (R) in combo", SCRIPT_PARAM_ONOFF, true)
 		
 	self.Settings:addSubMenu("["..myHero.charName.."] - Harass Settings", "harass")
-		self.Settings.harass:addParam("harassKey", "Combo Key", SCRIPT_PARAM_ONKEYDOWN, false, 67)
+		self.Settings.harass:addParam("harassKey", "Harass Key", SCRIPT_PARAM_ONKEYDOWN, false, 67)
 		self.Settings.harass:addParam("UseQ", "Use (Q) in harass", SCRIPT_PARAM_ONOFF, true)
 		
 	self.Settings:addSubMenu("["..myHero.charName.."] - Killsteal Settings", "killsteal")
