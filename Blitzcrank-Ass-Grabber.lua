@@ -1,6 +1,6 @@
 if myHero.charName ~= "Blitzcrank" then return end
 
-local  BlitzcrankAssGrabber_Version = 3.8
+local  BlitzcrankAssGrabber_Version = 3.9
 
 class "SxUpdate"
 function SxUpdate:__init(LocalVersion, Host, VersionPath, ScriptPath, SavePath, Callback)
@@ -71,6 +71,18 @@ else
 		"/Superx321/BoL/master/common/SxOrbWalk.lua",
 		LIB_PATH.."/SxOrbWalk.lua",
 		function(NewVersion) if NewVersion > 0 then print("<font color=\"#F0Ff8d\"><b>SxOrbWalk: </b></font> <font color=\"#FF0F0F\">Updated to "..NewVersion..". Please Reload with 2x F9</b></font>") ForceReload = true end 
+	end)
+end
+
+if FileExist(LIB_PATH .. "/DivinePred.lua") and VIP_USER then
+	require("DivinePred")
+else
+	SxUpdate(0,
+		"",
+		"",
+		"",
+		LIB_PATH.."/DivinePred.lua",
+		function(NewVersion) if NewVersion > 0 then print("<font color=\"#F0Ff8d\"><b>DivinePred: </b></font> <font color=\"#FF0F0F\">Updated to "..NewVersion..". Please Reload with 2x F9</b></font>") ForceReload = true end 
 	end)
 end
 	
@@ -328,10 +340,18 @@ function Combo(unit)
 end
 
 function CastQ(unit)
-	if unit ~= nil and GetDistance(unit) <= SkillQ.range and SkillQ.ready then
-		CastPosition,  HitChance,  Position = VP:GetLineCastPosition(unit, SkillQ.delay, SkillQ.width, SkillQ.range, SkillQ.speed, myHero, true)	
-		if HitChance >= 2 then
-			CastSpell(_Q, CastPosition.x, CastPosition.z)
+	if unit ~= nil and GetDistance(unit) <= SkillQ.range and SkillQ.ready then			
+		if Settings.prediction.prediction == 0 and VIP_USER then
+			local enemy = DPTarget(unit)
+			local State, Position, perc = DP:predict(enemy, myQ)
+			if State == SkillShot.STATUS.SUCCESS_HIT then 
+				CastSpell(_Q, Position.x, Position.z)
+			end
+		else
+			CastPosition,  HitChance,  Position = VP:GetLineCastPosition(unit, SkillQ.delay, SkillQ.width, SkillQ.range, SkillQ.speed, myHero, true)	
+			if HitChance >= 2 then
+				CastSpell(_Q, CastPosition.x, CastPosition.z)
+			end
 		end
 	end
 end	
@@ -400,6 +420,9 @@ function Menu()
 	Settings:addSubMenu("["..myHero.charName.."] - Misc", "misc")
 		Settings.misc:addParam("autoE", "Use (E) after a Successful Grab", SCRIPT_PARAM_ONOFF, true)
 		Settings.misc:permaShow("autoE")
+	
+	Settings:addSubMenu("["..myHero.charName.."] - Prediction", "prediction")	
+		Settings.prediction:addParam("prediction", "0: DivinePred | 1: VPrediction", SCRIPT_PARAM_SLICE, 1, 0, 1, 0)
 
 	Settings:addSubMenu("["..myHero.charName.."] - Draw Settings", "drawing")	
 		Settings.drawing:addParam("mDraw", "Disable All Range Draws", SCRIPT_PARAM_ONOFF, false)
@@ -438,7 +461,10 @@ function Variables()
 	SkillW = { name = "Overdrive", range = nil, delay = 0.375, speed = math.huge, width = nil, ready = false }
 	SkillE = { name = "Power Fist", range = 280, delay = nil, speed = nil, width = nil, ready = false }
 	SkillR = { name = "Static Field", range = 590, delay = 0.5, speed = math.huge, angle = 80, ready = false }
+
 	
+	DP = DivinePred()
+	myQ = SkillShot.PRESETS['RocketGrab']
 	nbgrabtotal= 0
 	missedgrab = 0
 	pourcentage = 0
