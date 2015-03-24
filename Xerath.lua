@@ -1,5 +1,5 @@
 if myHero.charName ~= "Xerath" then return end
-local AutoUpdateXerath_Version = 1.8
+local AutoUpdateXerath_Version = 1.81
 
 class "SxUpdate"
 function SxUpdate:__init(LocalVersion, Host, VersionPath, ScriptPath, SavePath, Callback)
@@ -63,6 +63,7 @@ end)
 
 if FileExist(LIB_PATH .. "/VPrediction.lua") then
 	require("VPrediction")
+	VP = VPrediction()
 	if VP.version >= 3 then	
 		SxUpdate(0,
 			"raw.githubusercontent.com",
