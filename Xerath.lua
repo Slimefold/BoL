@@ -1,5 +1,5 @@
 if myHero.charName ~= "Xerath" then return end
-local AutoUpdateXerath_Version = 1.81
+local AutoUpdateXerath_Version = 1.9
 
 class "SxUpdate"
 function SxUpdate:__init(LocalVersion, Host, VersionPath, ScriptPath, SavePath, Callback)
