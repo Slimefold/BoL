@@ -1,6 +1,6 @@
 if myHero.charName ~= "Blitzcrank" then return end
 
-local  BlitzcrankAssGrabber_Version = 3.9
+local  BlitzcrankAssGrabber_Version = 4.0
 
 class "SxUpdate"
 function SxUpdate:__init(LocalVersion, Host, VersionPath, ScriptPath, SavePath, Callback)
@@ -341,7 +341,7 @@ end
 
 function CastQ(unit)
 	if unit ~= nil and GetDistance(unit) <= SkillQ.range and SkillQ.ready then			
-		if Settings.prediction.prediction == 0 and VIP_USER then
+		if Settings.prediction.prediction == 1 and VIP_USER then
 			local enemy = DPTarget(unit)
 			local State, Position, perc = DP:predict(enemy, myQ)
 			if State == SkillShot.STATUS.SUCCESS_HIT then 
@@ -422,7 +422,7 @@ function Menu()
 		Settings.misc:permaShow("autoE")
 	
 	Settings:addSubMenu("["..myHero.charName.."] - Prediction", "prediction")	
-		Settings.prediction:addParam("prediction", "0: DivinePred | 1: VPrediction", SCRIPT_PARAM_SLICE, 1, 0, 1, 0)
+		Settings.prediction:addParam("prediction", "0: VPrediction | 1: DivinePred", SCRIPT_PARAM_SLICE, 0, 0, 1, 0)
 
 	Settings:addSubMenu("["..myHero.charName.."] - Draw Settings", "drawing")	
 		Settings.drawing:addParam("mDraw", "Disable All Range Draws", SCRIPT_PARAM_ONOFF, false)
