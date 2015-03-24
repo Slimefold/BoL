@@ -14,9 +14,10 @@
                                                                                              
 ]]
 
-local AutoSmite_Version = 4.2
+local AutoSmite_Version = 4.3
 
 class "SxUpdate"
+
 function SxUpdate:__init(LocalVersion, Host, VersionPath, ScriptPath, SavePath, Callback)
     self.Callback = Callback
     self.LocalVersion = LocalVersion
@@ -90,22 +91,22 @@ function OnLoad()
 	assert(load(Base64Decode("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"), nil, "bt", _ENV))() ScriptStatus("OBECFFGFDFE") 
 	if myHero.charName == "Chogath" then
 		Chogath()
-		print("<font color=\"#F0Ff8d\"><b>AutoSmite: </b></font> <font color=\"#FF0F0F\">Successfully Load Chogath</b></font>")
+		print("<font color=\"#F0Ff8d\"><b>AutoSmite: </b></font> <font color=\"#FF0F0F\">Successfully Load - Chogath</b></font>")
 	elseif myHero.charName == "Nunu" then
 		Nunu()
-		print("<font color=\"#F0Ff8d\"><b>AutoSmite: </b></font> <font color=\"#FF0F0F\">Successfully Load Nunu</b></font>")
+		print("<font color=\"#F0Ff8d\"><b>AutoSmite: </b></font> <font color=\"#FF0F0F\">Successfully Load - Nunu</b></font>")
 	elseif myHero.charName == "Volibear" then
 		Volibear()
-		print("<font color=\"#F0Ff8d\"><b>AutoSmite: </b></font> <font color=\"#FF0F0F\">Successfully Load Volibear</b></font>")
+		print("<font color=\"#F0Ff8d\"><b>AutoSmite: </b></font> <font color=\"#FF0F0F\">Successfully Load - Volibear</b></font>")
 	elseif myHero.charName == "Shaco" then
 		Shaco()
-		print("<font color=\"#F0Ff8d\"><b>AutoSmite: </b></font> <font color=\"#FF0F0F\">Successfully Load Shaco</b></font>")
+		print("<font color=\"#F0Ff8d\"><b>AutoSmite: </b></font> <font color=\"#FF0F0F\">Successfully Load - Shaco</b></font>")
 	elseif myHero.charName == "Olaf" then
 		Olaf()
-		print("<font color=\"#F0Ff8d\"><b>AutoSmite: </b></font> <font color=\"#FF0F0F\">Successfully Load Olaf</b></font>")
+		print("<font color=\"#F0Ff8d\"><b>AutoSmite: </b></font> <font color=\"#FF0F0F\">Successfully Load - Olaf</b></font>")
 	else
 		Smite()
-		print("<font color=\"#F0Ff8d\"><b>AutoSmite: </b></font> <font color=\"#FF0F0F\">Successfully Load</b></font>")
+		print("<font color=\"#F0Ff8d\"><b>AutoSmite: </b></font> <font color=\"#FF0F0F\">Successfully - Load</b></font>")
 	end	
 end
 
@@ -137,7 +138,7 @@ end
 
 function MinionSmiteManager:OnTick()
 
-	if _G.myMenu.settings.Smite and _G.myMenu.killsteal.killsteal then
+	if _G.myMenu.killsteal.killsteal then
 		self:killSteal()
 	end
 end
@@ -191,47 +192,26 @@ end
 function MinionSmiteManager:CheckMinion()
 	for i, minion in pairs(self.MyMinionTable) do
 		self.isMinion = self.MyMinionTable[i]
-		if GetDistance(self.isMinion) <= 1200 then
+		if GetDistance(self.isMinion) <= 550 then
 			if self:ValidMinion(self.isMinion) then
-				if self.isMinion.name == "SRU_Murkwolf8.1.1" or self.isMinion.name == "SRU_Murkwolf2.1.1" then
-					if _G.myMenu.settings.wolve then
-						return self.isMinion
-					end
-				end		
-				if self.isMinion.name == "SRU_Razorbeak3.1.1" or self.isMinion.name == "SRU_Razorbeak9.1.1" then
-					if _G.myMenu.settings.ghost then
-						return self.isMinion
-					end
-				end
-				if self.isMinion.name == "SRU_Gromp14.1.1" or self.isMinion.name == "SRU_Gromp13.1.1" then
-					if _G.myMenu.settings.gromp then
-						return self.isMinion
-					end
-				end
-				if self.isMinion.name == "SRU_Krug5.1.2" or self.isMinion.name == "SRU_Krug11.1.2" then
-					if _G.myMenu.settings.golem then
-						return self.isMinion
-					end
-				end
-				if self.isMinion.name == "SRU_Red4.1.1" or self.isMinion.name == "SRU_Red10.1.1" then
-					if _G.myMenu.settings.redBuff then
-						return self.isMinion
-					end
-				end
-				if self.isMinion.name == "SRU_Blue1.1.1" or self.isMinion.name == "SRU_Blue7.1.1" then
-					if _G.myMenu.settings.blueBuff then
-						return self.isMinion
-					end
-				end
-				if self.isMinion.name == "SRU_Dragon6.1.1" then
-					if _G.myMenu.settings.drake then
-						return self.isMinion
-					end
-				end
-				if self.isMinion.name == "SRU_Baron12.1.1" then
-					if _G.myMenu.settings.nashor then
-						return self.isMinion
-					end
+				if _G.myMenu.settings.wolve and (self.isMinion.name == "SRU_Murkwolf8.1.1" or self.isMinion.name == "SRU_Murkwolf2.1.1") then
+					return self.isMinion	
+				elseif _G.myMenu.settings.ghost and (self.isMinion.name == "SRU_Razorbeak3.1.1" or self.isMinion.name == "SRU_Razorbeak9.1.1") then
+					return self.isMinion
+				elseif _G.myMenu.settings.gromp and (self.isMinion.name == "SRU_Gromp14.1.1" or self.isMinion.name == "SRU_Gromp13.1.1") then
+					return self.isMinion
+				elseif _G.myMenu.settings.golem and (self.isMinion.name == "SRU_Krug5.1.2" or self.isMinion.name == "SRU_Krug11.1.2") then
+					return self.isMinion
+				elseif _G.myMenu.settings.redBuff and (self.isMinion.name == "SRU_Red4.1.1" or self.isMinion.name == "SRU_Red10.1.1") then  
+					return self.isMinion
+				elseif _G.myMenu.settings.blueBuff and (self.isMinion.name == "SRU_Blue1.1.1" or self.isMinion.name == "SRU_Blue7.1.1") then
+					return self.isMinion
+				elseif self.isMinion.name == "SRU_Dragon6.1.1" and _G.myMenu.settings.drake then
+					return self.isMinion
+				elseif self.isMinion.name == "SRU_Baron12.1.1" and _G.myMenu.settings.nashor then
+					return self.isMinion
+				else
+					return nil
 				end
 			end
 		end
@@ -614,7 +594,7 @@ function Volibear:OnDraw()
 					if self.minion.health > self.smiteDamage then
 						DrawText3D(tostring(math.ceil(self.drawDamage)),self.minion.x, self.minion.y+450, self.minion.z, 24, 0xFFFF0000)
 					else
-						DrawText3D("SMITABLE (R + SMITE)",self.minion.x, self.minion.y+450, self.minion.z, 24, 0xff00ff00)
+						DrawText3D("SMITABLE (W + SMITE)",self.minion.x, self.minion.y+450, self.minion.z, 24, 0xff00ff00)
 					end
 				elseif self.smiteReady and not self.wReady then
 					self.drawDamage = self.minion.health - self.smite
@@ -628,7 +608,7 @@ function Volibear:OnDraw()
 					if self.minion.health > self.spell then
 						DrawText3D(tostring(math.ceil(self.drawDamage)),self.minion.x, self.minion.y+450, self.minion.z, 24, 0xFFFF0000)
 					else
-						DrawText3D("SMITABLE (R)",self.minion.x, self.minion.y+450, self.minion.z, 24, 0xff00ff00)
+						DrawText3D("SMITABLE (W)",self.minion.x, self.minion.y+450, self.minion.z, 24, 0xff00ff00)
 					end
 				end
 			elseif self.minion and GetDistance(self.minion) <= 550 and self.smiteReady then
@@ -866,7 +846,6 @@ function Olaf:__init()
 end
 
 function Olaf:OnDraw()
-
 	if not myHero.dead and _G.myMenu.settings.Smite then
 		if _G.myMenu.Draw.drawSmite then 
 			if self.eReady and _G.myMenu.settings.useE then
