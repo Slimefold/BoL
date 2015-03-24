@@ -422,7 +422,7 @@ function Menu()
 		Settings.misc:permaShow("autoE")
 	
 	Settings:addSubMenu("["..myHero.charName.."] - Prediction", "prediction")	
-		Settings.prediction:addParam("prediction", "0: VPrediction | 1: DivinePred", SCRIPT_PARAM_SLICE, 0, 0, 1, 0)
+		Settings.prediction:addParam("prediction", "0: VPrediction | 1: DivinePred VIP", SCRIPT_PARAM_SLICE, 0, 0, 1, 0)
 
 	Settings:addSubMenu("["..myHero.charName.."] - Draw Settings", "drawing")	
 		Settings.drawing:addParam("mDraw", "Disable All Range Draws", SCRIPT_PARAM_ONOFF, false)
