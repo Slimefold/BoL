@@ -1,6 +1,6 @@
 if myHero.charName ~= "Blitzcrank" then return end
 
-local  BlitzcrankAssGrabber_Version = 4.12
+local  BlitzcrankAssGrabber_Version = 4.13
 
 class "SxUpdate"
 function SxUpdate:__init(LocalVersion, Host, VersionPath, ScriptPath, SavePath, Callback)
@@ -201,11 +201,11 @@ function CustomOnDraw()
 		end
 		if SkillQ.ready then
 			if ValidTarget(Target) and Settings.drawing.line then 
-				local IsCollision = VP:CheckMinionCollision(Target, Target.pos,SkillQ.delay, SkillQ.width, SkillQ.range, SkillQ.speed, myHero.pos,nil, true)
+				local IsCollision = VP:CheckMinionCollision(Target, Target.pos,SkillQ.delay, SkillQ.width,Settings.combo.rangeQ, SkillQ.speed, myHero.pos,nil, true)
 				DrawLine3D(myHero.x, myHero.y, myHero.z, Target.x, Target.y, Target.z, 5, IsCollision and ARGB(125, 255, 0,0) or ARGB(125, 0, 255,0))
 			end
 			if Settings.drawing.qDraw then 
-				DrawCircle(myHero.x, myHero.y, myHero.z, SkillQ.range, RGB(Settings.drawing.qColor[2], Settings.drawing.qColor[3], Settings.drawing.qColor[4]))
+				DrawCircle(myHero.x, myHero.y, myHero.z, Settings.combo.rangeQ, RGB(Settings.drawing.qColor[2], Settings.drawing.qColor[3], Settings.drawing.qColor[4]))
 			end
 		end
 		if SkillR.ready and Settings.drawing.rDraw then 
@@ -333,7 +333,7 @@ function Combo(unit)
 end
 
 function CastQ(unit)
-	if unit ~= nil and GetDistance(unit) <= SkillQ.range and SkillQ.ready then			
+	if unit ~= nil and GetDistance(unit) <= Settings.combo.rangeQ and SkillQ.ready then			
 		if Settings.prediction.prediction == 1 and VIP_USER then
 			local enemy = DPTarget(unit)
 			local State, Position, perc = DP:predict(enemy, myQ)
@@ -341,7 +341,7 @@ function CastQ(unit)
 				CastSpell(_Q, Position.x, Position.z)
 			end
 		else
-			CastPosition,  HitChance,  Position = VP:GetLineCastPosition(unit, SkillQ.delay, SkillQ.width, SkillQ.range, SkillQ.speed, myHero, true)	
+			CastPosition,  HitChance,  Position = VP:GetLineCastPosition(unit, SkillQ.delay, SkillQ.width,Settings.combo.rangeQ, SkillQ.speed, myHero, true)	
 			if HitChance >= 2 then
 				CastSpell(_Q, CastPosition.x, CastPosition.z)
 			end
@@ -350,9 +350,9 @@ function CastQ(unit)
 end	
 
 function CastW(unit)
-local IsCollision = VP:CheckMinionCollision(unit, unit.pos,SkillQ.delay, SkillQ.width, SkillQ.range, SkillQ.speed, myHero.pos,nil, true)
+local IsCollision = VP:CheckMinionCollision(unit, unit.pos,SkillQ.delay, SkillQ.width, Settings.combo.rangeQ, SkillQ.speed, myHero.pos,nil, true)
 	if not IsCollision then
-		if GetDistance(unit) <= SkillQ.range + 250 and GetDistance(unit) >= SkillQ.range and SkillW.ready and SkillQ.ready then
+		if GetDistance(unit) <= Settings.combo.rangeQ + 250 and GetDistance(unit) >= Settings.combo.rangeQ and SkillW.ready and SkillQ.ready then
 			CastSpell(_W)
 		elseif GetDistance(unit) <= SkillE.range + 150 and SkillW.ready then
 			CastSpell(_W)
@@ -389,6 +389,7 @@ function Menu()
 	Settings:addSubMenu("["..myHero.charName.."] - Combo Settings (SBTW)", "combo")
 		Settings.combo:addParam("comboKey", "Combo Key", SCRIPT_PARAM_ONKEYDOWN, false, 32)
 		Settings.combo:addParam("useQ", "Use (Q) in Combo", SCRIPT_PARAM_ONOFF, true)
+		Settings.combo:addParam("rangeQ","Max Q Range for Grab", SCRIPT_PARAM_SLICE, 900, 600, 925, 0)
 		Settings.combo:addParam("useW", "Use (W) in Combo", SCRIPT_PARAM_ONOFF, true)
 		Settings.combo:addParam("useE", "Use (E) in Combo", SCRIPT_PARAM_ONOFF, true)
 		Settings.combo:addParam("useR", "Use (R) in Combo", SCRIPT_PARAM_ONOFF, true)
