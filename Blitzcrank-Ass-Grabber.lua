@@ -1,6 +1,6 @@
 if myHero.charName ~= "Blitzcrank" then return end
 
-local  BlitzcrankAssGrabber_Version = 4.13
+local  BlitzcrankAssGrabber_Version = 4.14
 
 class "SxUpdate"
 function SxUpdate:__init(LocalVersion, Host, VersionPath, ScriptPath, SavePath, Callback)
@@ -269,7 +269,7 @@ function CustomOnProcessSpell(unit, spell)
 end
 
 function CustomOnApplyBuff(unit,source,buff)
-	if unit and unit.isMe and buff.name == "rocketgrab2" and unit.type == myHero.type then
+	if unit and buff.name == "rocketgrab2" and unit.type == myHero.type then
 		nbgrabwin=nbgrabwin+0.5
 		missedgrab = missedgrab - 0.5
 		if Settings.misc.autoE then
@@ -333,17 +333,19 @@ function Combo(unit)
 end
 
 function CastQ(unit)
-	if unit ~= nil and GetDistance(unit) <= Settings.combo.rangeQ and SkillQ.ready then			
-		if Settings.prediction.prediction == 1 and VIP_USER then
-			local enemy = DPTarget(unit)
-			local State, Position, perc = DP:predict(enemy, myQ)
-			if State == SkillShot.STATUS.SUCCESS_HIT then 
-				CastSpell(_Q, Position.x, Position.z)
-			end
-		else
-			CastPosition,  HitChance,  Position = VP:GetLineCastPosition(unit, SkillQ.delay, SkillQ.width,Settings.combo.rangeQ, SkillQ.speed, myHero, true)	
-			if HitChance >= 2 then
-				CastSpell(_Q, CastPosition.x, CastPosition.z)
+	if (unit.charName == Champ[1] and Settings.qSettings.champ1) or (unit.charName == Champ[2] and Settings.qSettings.champ2) or (unit.charName == Champ[3] and Settings.qSettings.champ3) or (unit.charName == Champ[4] and Settings.qSettings.champ4) or (unit.charName == Champ[5] and Settings.qSettings.champ5) then
+		if unit ~= nil and GetDistance(unit) <= Settings.combo.rangeQ and SkillQ.ready then			
+			if Settings.prediction.prediction == 1 and VIP_USER then
+				local enemy = DPTarget(unit)
+				local State, Position, perc = DP:predict(enemy, myQ)
+				if State == SkillShot.STATUS.SUCCESS_HIT then 
+					CastSpell(_Q, Position.x, Position.z)
+				end
+			else
+				CastPosition,  HitChance,  Position = VP:GetLineCastPosition(unit, SkillQ.delay, SkillQ.width,Settings.combo.rangeQ, SkillQ.speed, myHero, true)	
+				if HitChance >= 2 then
+					CastSpell(_Q, CastPosition.x, CastPosition.z)
+				end
 			end
 		end
 	end
@@ -397,6 +399,13 @@ function Menu()
 		Settings.combo:permaShow("comboKey")
 		Settings.combo:permaShow("useR")
 		Settings.combo:permaShow("RifKilable")
+		
+	Settings:addSubMenu("["..myHero.charName.."] - (Q) Settings", "qSettings")	
+		if Champ[1] ~= nil then Settings.qSettings:addParam("champ1", "Use on "..Champ[1], SCRIPT_PARAM_ONOFF, true) end
+		if Champ[2] ~= nil then Settings.qSettings:addParam("champ2", "Use on "..Champ[2], SCRIPT_PARAM_ONOFF, true) end
+		if Champ[3] ~= nil then Settings.qSettings:addParam("champ3", "Use on "..Champ[3], SCRIPT_PARAM_ONOFF, true) end
+		if Champ[4] ~= nil then Settings.qSettings:addParam("champ4", "Use on "..Champ[4], SCRIPT_PARAM_ONOFF, true) end
+		if Champ[5] ~= nil then Settings.qSettings:addParam("champ5", "Use on "..Champ[5], SCRIPT_PARAM_ONOFF, true) end
 		
 	Settings:addSubMenu("["..myHero.charName.."] - AutoCombo Settings", "autoCombo")
 		Settings.autoCombo:addParam("autoCombo", "Auto Combo State", SCRIPT_PARAM_ONKEYTOGGLE, false, GetKey("T"))
@@ -455,6 +464,11 @@ function Variables()
 	SkillW = { name = "Overdrive", range = nil, delay = 0.375, speed = math.huge, width = nil, ready = false }
 	SkillE = { name = "Power Fist", range = 280, delay = nil, speed = nil, width = nil, ready = false }
 	SkillR = { name = "Static Field", range = 590, delay = 0.5, speed = math.huge, angle = 80, ready = false }
+	myEnemyTable = GetEnemyHeroes()
+	Champ = { } 
+	for i, enemy in pairs(myEnemyTable) do 
+		Champ[i] = enemy.charName
+	end
 	
 	nbgrabtotal= 0
 	missedgrab = 0
