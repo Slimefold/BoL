@@ -1,6 +1,6 @@
 if myHero.charName ~= "Darius" or not VIP_USER then return end 
 
-local  DariusPentaDunk_Version = 1.82
+local  DariusPentaDunk_Version = 1.83
 
 class "SxUpdate"
 function SxUpdate:__init(LocalVersion, Host, VersionPath, ScriptPath, SavePath, Callback)
@@ -76,6 +76,16 @@ end
 	
 if FileExist(LIB_PATH .. "/VPrediction.lua") then
 	require("VPrediction")
+	VP = VPrediction()
+	if VP.version >= 3 then	
+		SxUpdate(0,
+			"raw.githubusercontent.com",
+			"/SidaBoL/Scripts/master/Common/VPrediction.version",
+			"/SidaBoL/Scripts/master/Common/VPrediction.lua",
+			LIB_PATH.."/VPrediction.lua",
+			function(NewVersion) if NewVersion > 0 then print("<font color=\"#F0Ff8d\"><b>VPrediction: </b></font> <font color=\"#FF0F0F\">Updated to "..NewVersion..". Please Reload with 2x F9</b></font>") ForceReload = true end 
+		end)
+	end
 else
 	SxUpdate(0,
 		"raw.githubusercontent.com",
