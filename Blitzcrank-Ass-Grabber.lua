@@ -1,6 +1,6 @@
 if myHero.charName ~= "Blitzcrank" then return end
 
-local  BlitzcrankAssGrabber_Version = 4.0
+local  BlitzcrankAssGrabber_Version = 4.1
 
 class "SxUpdate"
 function SxUpdate:__init(LocalVersion, Host, VersionPath, ScriptPath, SavePath, Callback)
@@ -73,31 +73,10 @@ else
 		function(NewVersion) if NewVersion > 0 then print("<font color=\"#F0Ff8d\"><b>SxOrbWalk: </b></font> <font color=\"#FF0F0F\">Updated to "..NewVersion..". Please Reload with 2x F9</b></font>") ForceReload = true end 
 	end)
 end
-
-if FileExist(LIB_PATH .. "/DivinePred.lua") and VIP_USER then
-	require("DivinePred")
-else
-	SxUpdate(0,
-		"",
-		"",
-		"",
-		LIB_PATH.."/DivinePred.lua",
-		function(NewVersion) if NewVersion > 0 then print("<font color=\"#F0Ff8d\"><b>DivinePred: </b></font> <font color=\"#FF0F0F\">Updated to "..NewVersion..". Please Reload with 2x F9</b></font>") ForceReload = true end 
-	end)
-end
 	
 if FileExist(LIB_PATH .. "/VPrediction.lua") then
 	require("VPrediction")
 	VP = VPrediction()
-	if VP.version >= 3 then	
-		SxUpdate(0,
-			"raw.githubusercontent.com",
-			"/SidaBoL/Scripts/blob/master/Common/VPrediction.version",
-			"/SidaBoL/Scripts/blob/master/Common/VPrediction.lua",
-			LIB_PATH.."/VPrediction.lua",
-			function(NewVersion) if NewVersion > 0 then print("<font color=\"#F0Ff8d\"><b>VPrediction: </b></font> <font color=\"#FF0F0F\">Updated to "..NewVersion..". Please Reload with 2x F9</b></font>") ForceReload = true end 
-		end)
-	end
 else
 	SxUpdate(0,
 		"raw.githubusercontent.com",
@@ -108,6 +87,11 @@ else
 	end)
 end
 
+if VIP_USER and FileExist(LIB_PATH .. "/DivinePred.lua") then 
+	require "DivinePred" 
+	DP = DivinePred()
+	myQ = SkillShot.PRESETS['RocketGrab']
+end
 
 function OnLoad()
 	DelayAction(function()	
@@ -422,7 +406,7 @@ function Menu()
 		Settings.misc:permaShow("autoE")
 	
 	Settings:addSubMenu("["..myHero.charName.."] - Prediction", "prediction")	
-		Settings.prediction:addParam("prediction", "0: VPrediction | 1: DivinePred VIP", SCRIPT_PARAM_SLICE, 0, 0, 1, 0)
+		Settings.prediction:addParam("prediction", "0: VPrediction | 1: DivinePred", SCRIPT_PARAM_SLICE, 0, 0, 1, 0)
 
 	Settings:addSubMenu("["..myHero.charName.."] - Draw Settings", "drawing")	
 		Settings.drawing:addParam("mDraw", "Disable All Range Draws", SCRIPT_PARAM_ONOFF, false)
@@ -461,10 +445,7 @@ function Variables()
 	SkillW = { name = "Overdrive", range = nil, delay = 0.375, speed = math.huge, width = nil, ready = false }
 	SkillE = { name = "Power Fist", range = 280, delay = nil, speed = nil, width = nil, ready = false }
 	SkillR = { name = "Static Field", range = 590, delay = 0.5, speed = math.huge, angle = 80, ready = false }
-
 	
-	DP = DivinePred()
-	myQ = SkillShot.PRESETS['RocketGrab']
 	nbgrabtotal= 0
 	missedgrab = 0
 	pourcentage = 0
