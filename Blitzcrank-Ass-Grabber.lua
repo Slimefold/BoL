@@ -1,6 +1,6 @@
 if myHero.charName ~= "Blitzcrank" then return end
 
-local  BlitzcrankAssGrabber_Version = 4.1
+local  BlitzcrankAssGrabber_Version = 4.11
 
 class "SxUpdate"
 function SxUpdate:__init(LocalVersion, Host, VersionPath, ScriptPath, SavePath, Callback)
@@ -80,8 +80,8 @@ if FileExist(LIB_PATH .. "/VPrediction.lua") then
 else
 	SxUpdate(0,
 		"raw.githubusercontent.com",
-		"/SidaBoL/Scripts/blob/master/Common/VPrediction.version",
-		"/SidaBoL/Scripts/blob/master/Common/VPrediction.lua",
+		"/SidaBoL/Scripts/master/Common/VPrediction.version",
+		"/SidaBoL/Scripts/master/Common/VPrediction.lua",
 		LIB_PATH.."/VPrediction.lua",
 		function(NewVersion) if NewVersion > 0 then print("<font color=\"#F0Ff8d\"><b>VPrediction: </b></font> <font color=\"#FF0F0F\">Updated to "..NewVersion..". Please Reload with 2x F9</b></font>") ForceReload = true end 
 	end)
