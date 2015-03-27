@@ -1,6 +1,6 @@
 if myHero.charName ~= "Blitzcrank" then return end
 
-local  BlitzcrankAssGrabber_Version = 4.14
+local  BlitzcrankAssGrabber_Version = 4.15
 
 class "SxUpdate"
 function SxUpdate:__init(LocalVersion, Host, VersionPath, ScriptPath, SavePath, Callback)
@@ -59,7 +59,7 @@ SxUpdate(BlitzcrankAssGrabber_Version,
 	"/AMBER17/BoL/master/Blitzcrank-Ass-Grabber.Version",
 	"/AMBER17/BoL/master/Blitzcrank-Ass-Grabber.lua",
 	SCRIPT_PATH.."/" .. GetCurrentEnv().FILE_NAME,
-	function(NewVersion) if NewVersion > BlitzcrankAssGrabber_Version then print("<font color=\"#F0Ff8d\"><b>Blitzcrank Ass-Grabber: </b></font> <font color=\"#FF0F0F\">Updated to "..NewVersion..". Please Reload with 2x F9</b></font>") ForceReload = true else print("<font color=\"#F0Ff8d\"><b>Blitzcrank Ass-Grabber: </b></font> <font color=\"#FF0F0F\">You have the Latest Version</b></font>") end 
+	function(NewVersion) if NewVersion > BlitzcrankAssGrabber_Version then print("<font color=\"#DF7401\"><b>Blitzcrank Ass-Grabber: </b></font> <font color=\"#D7DF01\">Updated to "..NewVersion..". Please Reload with 2x F9</b></font>") ForceReload = true else print("<font color=\"#DF7401\"><b>Blitzcrank Ass-Grabber: </b></font> <font color=\"#D7DF01\">You have the Latest Version</b></font>") end 
 end)
 	
 if FileExist(LIB_PATH .. "/SxOrbWalk.lua") then
@@ -110,26 +110,27 @@ function OnLoad()
 		AddDrawCallback(CustomOnDraw)		
 		AddProcessSpellCallback(CustomOnProcessSpell)
 		AddTickCallback(CustomOnTick)
-		AddApplyBuffCallback(CustomOnApplyBuff)		
+		AddApplyBuffCallback(CustomOnApplyBuff)	
+		AddUpdateBuffCallback(CustomOnUpdateBuff)		
 	end, 6)
 end
 
 function CustomOnLoad()
 	if ForceReload then return end
-	print("<font color=\"#F0Ff8d\"><b>Blitzcrank Ass-Grabber:</b></font> <font color=\"#FF0F0F\"> Have a Good Game | By AMBER |  </font>")
+	print("<font color=\"#DF7401\"><b>Blitzcrank Ass-Grabber:</b></font> <font color=\"#D7DF01\"> Thanks for using this Script ! Enjoy Your Game ! </font>")
 	
 	if _G.MMA_Loaded ~= nil then
-		PrintChat("<font color=\"#F0Ff8d\"><b>MMA: </b></font> <font color=\"#FF0F0F\">Loaded</font>")
+		PrintChat("<font color=\"#DF7401\"><b>MMA: </b></font> <font color=\"#D7DF01\">Loaded</font>")
 		MMA = true
 		SAC = false
 		Sx = false
 	elseif _G.AutoCarry ~= nil then
-		PrintChat("<font color=\"#F0Ff8d\"><b>SAC: </b></font> <font color=\"#FF0F0F\">Loaded</font>")
+		PrintChat("<font color=\"#DF7401\"><b>SAC: </b></font> <font color=\"#D7DF01\">Loaded</font>")
 		SAC = true
 		MMA = false
 		Sx = false
 	else
-		PrintChat("<font color=\"#F0Ff8d\"><b>SxOrbWalk: </b></font> <font color=\"#FF0F0F\">Loaded</font>")
+		PrintChat("<font color=\"#DF7401\"><b>SxOrbWalk: </b></font> <font color=\"#D7DF01\">Loaded</font>")
 		Sx = true
 		MMA = false
 		SAC = false
@@ -268,12 +269,13 @@ function CustomOnProcessSpell(unit, spell)
     end
 end
 
-function CustomOnApplyBuff(unit,source,buff)
-	if unit and buff.name == "rocketgrab2" and unit.type == myHero.type then
-		nbgrabwin=nbgrabwin+0.5
-		missedgrab = missedgrab - 0.5
+function CustomOnUpdateBuff(unit, buff, stacks)
+	if unit and not unit.isMe and buff.name == "rocketgrab2" and unit.type == myHero.type then
+		nbgrabwin=nbgrabwin+ 1
+		missedgrab = missedgrab - 1
+		pourcentage =((nbgrabwin*100)/nbgrabtotal)
 		if Settings.misc.autoE then
-			CastE(unit)
+			CastAutoE(unit)
 		end
 	end
 end
@@ -369,6 +371,11 @@ function CastE(unit)
 	end	
 end
 
+function CastAutoE(unit)
+	CastSpell(_E)
+	myHero:Attack(unit)
+end
+
 function CastR(unit)
 	if GetDistance(unit) <= SkillR.range and SkillR.ready then
 		CastSpell(_R)
@@ -386,7 +393,7 @@ function Checks()
 end
 
 function Menu()
-	Settings = scriptConfig("| | Blitzcrank | Ass-Grabber | |", "AMBER")
+	Settings = scriptConfig("Blitzcrank: Ass-Grabber ", "AMBER")
 	
 	Settings:addSubMenu("["..myHero.charName.."] - Combo Settings (SBTW)", "combo")
 		Settings.combo:addParam("comboKey", "Combo Key", SCRIPT_PARAM_ONKEYDOWN, false, 32)
@@ -440,7 +447,7 @@ function Menu()
 		Settings.drawing:addParam("line", "Draw (Q) Line Helper", SCRIPT_PARAM_ONOFF, true)
 		
 		
-	Settings:addSubMenu("["..myHero.charName.."] - Draw Stats (Broken)", "drawstats")
+	Settings:addSubMenu("["..myHero.charName.."] - Draw Stats", "drawstats")
 		Settings.drawstats:addParam("stats", "Show Stats & Passive's shield", SCRIPT_PARAM_ONOFF, true)
 		Settings.drawstats:addParam("pourcentage", "Show Pourcentage", SCRIPT_PARAM_ONOFF, true)
 		Settings.drawstats:addParam("grabdone", "Show Grab Done", SCRIPT_PARAM_ONOFF, true)
