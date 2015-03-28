@@ -1,6 +1,6 @@
 if myHero.charName ~= "Nidalee" then return end
 
-local  BlitzcrankAssGrabber_Version = 1.10
+local Nidalee_Version = 1.10
 
 class "SxUpdate"
 function SxUpdate:__init(LocalVersion, Host, VersionPath, ScriptPath, SavePath, Callback)
@@ -54,12 +54,12 @@ function SxUpdate:DownloadUpdate()
 end
 
 local ForceReload = false
-SxUpdate(BlitzcrankAssGrabber_Version,
+SxUpdate(Nidalee_Version,
 	"raw.githubusercontent.com",
 	"/AMBER17/BoL/master/Nidalee.version",
 	"/AMBER17/BoL/master/Nidalee.lua",
 	SCRIPT_PATH.."/" .. GetCurrentEnv().FILE_NAME,
-	function(NewVersion) if NewVersion > BlitzcrankAssGrabber_Version then print("<font color=\"#DF7401\"><b>Nidalee Beastiality Princess (BETA): </b></font> <font color=\"#D7DF01\">Updated to "..NewVersion..". Please Reload with 2x F9</b></font>") ForceReload = true else print("<font color=\"#DF7401\"><b>Nidalee Beastiality Princess (BETA): </b></font> <font color=\"#D7DF01\">You have the Latest Version</b></font>") end 
+	function(NewVersion) if NewVersion > Nidalee_Version then print("<font color=\"#DF7401\"><b>Nidalee Beastiality Princess (BETA): </b></font> <font color=\"#D7DF01\">Updated to "..NewVersion..". Please Reload with 2x F9</b></font>") ForceReload = true else print("<font color=\"#DF7401\"><b>Nidalee Beastiality Princess (BETA): </b></font> <font color=\"#D7DF01\">You have the Latest Version</b></font>") end 
 end)
 	
 if FileExist(LIB_PATH .. "/SxOrbWalk.lua") then
