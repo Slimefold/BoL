@@ -1,6 +1,6 @@
 if myHero.charName ~= "Nidalee" then return end
 
-local Nidalee_Version = 1.10
+local Nidalee_Version = 1.11
 
 class "SxUpdate"
 function SxUpdate:__init(LocalVersion, Host, VersionPath, ScriptPath, SavePath, Callback)
