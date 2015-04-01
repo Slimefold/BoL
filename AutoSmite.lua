@@ -1,20 +1,4 @@
-	--[[
-          _    _ _______ ____     _____ __  __ _____ _______ ______                          
-     /\  | |  | |__   __/ __ \   / ____|  \/  |_   _|__   __|  ____|                         
-    /  \ | |  | |  | | | |  | | | (___ | \  / | | |    | |  | |__                            
-   / /\ \| |  | |  | | | |  | |  \___ \| |\/| | | |    | |  |  __|                           
-  / ____ \ |__| |  | | | |__| |  ____) | |  | |_| |_   | |  | |____                          
- /_/    \_\____/_ _|_|  \____/ _|_____/|_|  |_|_____|  |_|__|______|_  _______        _____  
-     /\   |  \/  |  _ \|  ____|  __ \    ___    | |    |_   _| \ | | |/ /  __ \ /\   |  __ \ 
-    /  \  | \  / | |_) | |__  | |__) |  ( _ )   | |      | | |  \| | ' /| |__) /  \  | |  | |
-   / /\ \ | |\/| |  _ <|  __| |  _  /   / _ \/\ | |      | | | . ` |  < |  ___/ /\ \ | |  | |
-  / ____ \| |  | | |_) | |____| | \ \  | (_>  < | |____ _| |_| |\  | . \| |  / ____ \| |__| |
- /_/    \_\_|  |_|____/|______|_|  \_\  \___/\/ |______|_____|_| \_|_|\_\_| /_/    \_\_____/ 
-                                                                                             
-                                                                                             
-]]
-
-local AutoSmite_Version = 4.3
+local AutoSmite_Version = 4.4
 
 class "SxUpdate"
 
@@ -119,9 +103,7 @@ end
 function MinionSmiteManager:__init()
 	self.Smite = { name = "summonersmite", range = 550, slot = nil, ready = false }
 	self.smiteSlot = self:foundSmite()
-	if not self.smiteSlot then return end
 	self.MyMinionTable = { }
-	self.Smite = { name = "summonersmite", range = 550, slot = nil, ready = false }
 	
 	for i = 0, objManager.maxObjects do
 		local object = objManager:getObject(i)
@@ -192,7 +174,7 @@ end
 function MinionSmiteManager:CheckMinion()
 	for i, minion in pairs(self.MyMinionTable) do
 		self.isMinion = self.MyMinionTable[i]
-		if GetDistance(self.isMinion) <= 550 then
+		if GetDistance(self.isMinion) <= 1000 then
 			if self:ValidMinion(self.isMinion) then
 				if _G.myMenu.settings.wolve and (self.isMinion.name == "SRU_Murkwolf8.1.1" or self.isMinion.name == "SRU_Murkwolf2.1.1") then
 					return self.isMinion	
@@ -251,7 +233,6 @@ end
 function Smite:__init()
 	self.MyOwnMinionSmiteManager = MinionSmiteManager()
 	self.smiteSlot = self.MyOwnMinionSmiteManager:foundSmite()
-	if not self.smiteSlot then return end
 	self.MyOwnMinionSmiteManager:Menu()
 	self.smiteDamage = nil
 	self.smiteReady = nil
