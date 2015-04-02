@@ -1,127 +1,225 @@
 if myHero.charName ~= "Darius" or not VIP_USER then return end 
+class 'Darius'
 
-local  DariusPentaDunk_Version = 1.83
-
-class "SxUpdate"
-function SxUpdate:__init(LocalVersion, Host, VersionPath, ScriptPath, SavePath, Callback)
-    self.Callback = Callback
+class "ScriptUpdate"
+function ScriptUpdate:__init(LocalVersion,UseHttps, Host, VersionPath, ScriptPath, SavePath, CallbackUpdate, CallbackNoUpdate, CallbackNewVersion,CallbackError)
     self.LocalVersion = LocalVersion
     self.Host = Host
-    self.VersionPath = VersionPath
-    self.ScriptPath = ScriptPath
+    self.VersionPath = '/BoL/TCPUpdater/GetScript'..(UseHttps and '3' or '4')..'.php?script='..self:Base64Encode(self.Host..VersionPath)..'&rand='..math.random(99999999)
+    self.ScriptPath = '/BoL/TCPUpdater/GetScript'..(UseHttps and '3' or '4')..'.php?script='..self:Base64Encode(self.Host..ScriptPath)..'&rand='..math.random(99999999)
     self.SavePath = SavePath
-    self.LuaSocket = require("socket")
+    self.CallbackUpdate = CallbackUpdate
+    self.CallbackNoUpdate = CallbackNoUpdate
+    self.CallbackNewVersion = CallbackNewVersion
+    self.CallbackError = CallbackError
+    self:CreateSocket(self.VersionPath)
+    self.DownloadStatus = 'Connect to Server for VersionInfo'
     AddTickCallback(function() self:GetOnlineVersion() end)
 end
 
-function SxUpdate:GetOnlineVersion()
-    if not self.OnlineVersion and not self.VersionSocket then
-        self.VersionSocket = self.LuaSocket.connect("sx-bol.eu", 80)
-        self.VersionSocket:send("GET /BoL/TCPUpdater/GetScript.php?script="..self.Host..self.VersionPath.."&rand="..tostring(math.random(1000)).." HTTP/1.0\r\n\r\n")
+function ScriptUpdate:CreateSocket(url)
+    if not self.LuaSocket then
+        self.LuaSocket = require("socket")
+    else
+        self.Socket:close()
+        self.Socket = nil
+        self.Size = nil
+        self.RecvStarted = false
+    end
+    self.LuaSocket = require("socket")
+    self.Socket = self.LuaSocket.tcp()
+    self.Socket:settimeout(0, 'b')
+    self.Socket:settimeout(99999999, 't')
+    self.Socket:connect('sx-bol.eu', 80)
+    self.Url = url
+    self.Started = false
+    self.LastPrint = ""
+    self.File = ""
+end
+
+function ScriptUpdate:Base64Encode(data)
+    local b='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/'
+    return ((data:gsub('.', function(x)
+        local r,b='',x:byte()
+        for i=8,1,-1 do r=r..(b%2^i-b%2^(i-1)>0 and '1' or '0') end
+        return r;
+    end)..'0000'):gsub('%d%d%d?%d?%d?%d?', function(x)
+        if (#x < 6) then return '' end
+        local c=0
+        for i=1,6 do c=c+(x:sub(i,i)=='1' and 2^(6-i) or 0) end
+        return b:sub(c+1,c+1)
+    end)..({ '', '==', '=' })[#data%3+1])
+end
+
+function ScriptUpdate:GetOnlineVersion()
+    if self.GotScriptVersion then return end
+
+    self.Receive, self.Status, self.Snipped = self.Socket:receive(1024)
+    if self.Status == 'timeout' and not self.Started then
+        self.Started = true
+        self.Socket:send("GET "..self.Url.." HTTP/1.1\r\nHost: sx-bol.eu\r\n\r\n")
+    end
+    if (self.Receive or (#self.Snipped > 0)) and not self.RecvStarted then
+        self.RecvStarted = true
+        local recv,sent,time = self.Socket:getstats()
+        self.DownloadStatus = 'Downloading VersionInfo (0%)'
     end
 
-    if not self.OnlineVersion and self.VersionSocket then
-        self.VersionSocket:settimeout(0, 'b')
-        self.VersionSocket:settimeout(99999999, 't')
-        self.VersionReceive, self.VersionStatus = self.VersionSocket:receive('*a')
-    end
-
-    if not self.OnlineVersion and self.VersionSocket and self.VersionStatus ~= 'timeout' then
-        if self.VersionReceive then
-            self.OnlineVersion = tonumber(string.sub(self.VersionReceive, string.find(self.VersionReceive, "<bols".."cript>")+11, string.find(self.VersionReceive, "</bols".."cript>")-1))
-        else
-            print('AutoUpdate Failed')
-            self.OnlineVersion = 0
+    self.File = self.File .. (self.Receive or self.Snipped)
+    if self.File:find('</size>') then
+        if not self.Size then
+            self.Size = tonumber(self.File:sub(self.File:find('<si'..'ze>')+6,self.File:find('</s'..'ize>')-1)) + self.File:len()
         end
-        self:DownloadUpdate()
+        self.DownloadStatus = 'Downloading VersionInfo ('..math.round(100/self.Size*self.File:len(),2)..'%)'
+    end
+    if not (self.Receive or (#self.Snipped > 0)) and self.RecvStarted and self.Size and math.round(100/self.Size*self.File:len(),2) > 95 then
+        self.DownloadStatus = 'Downloading VersionInfo (100%)'
+        local HeaderEnd, ContentStart = self.File:find('<scr'..'ipt>')
+        local ContentEnd, _ = self.File:find('</sc'..'ript>')
+        if not ContentStart or not ContentEnd then
+            if self.CallbackError and type(self.CallbackError) == 'function' then
+                self.CallbackError()
+            end
+        else
+            self.OnlineVersion = tonumber(self.File:sub(ContentStart + 1,ContentEnd-1))
+            if self.OnlineVersion > self.LocalVersion then
+                if self.CallbackNewVersion and type(self.CallbackNewVersion) == 'function' then
+                    self.CallbackNewVersion(self.OnlineVersion,self.LocalVersion)
+                end
+                self:CreateSocket(self.ScriptPath)
+                self.DownloadStatus = 'Connect to Server for ScriptDownload'
+                AddTickCallback(function() self:DownloadUpdate() end)
+            else
+                if self.CallbackNoUpdate and type(self.CallbackNoUpdate) == 'function' then
+                    self.CallbackNoUpdate(self.LocalVersion)
+                end
+            end
+        end
+        self.GotScriptVersion = true
     end
 end
 
-function SxUpdate:DownloadUpdate()
-    if self.OnlineVersion > self.LocalVersion then
-        self.ScriptSocket = self.LuaSocket.connect("sx-bol.eu", 80)
-        self.ScriptSocket:send("GET /BoL/TCPUpdater/GetScript.php?script="..self.Host..self.ScriptPath.."&rand="..tostring(math.random(1000)).." HTTP/1.0\r\n\r\n")
-        self.ScriptReceive, self.ScriptStatus = self.ScriptSocket:receive('*a')
-        self.ScriptRAW = string.sub(self.ScriptReceive, string.find(self.ScriptReceive, "<bols".."cript>")+11, string.find(self.ScriptReceive, "</bols".."cript>")-1)
-        local ScriptFileOpen = io.open(self.SavePath, "w+")
-        ScriptFileOpen:write(self.ScriptRAW)
-        ScriptFileOpen:close()
+function ScriptUpdate:DownloadUpdate()
+    if self.GotScriptUpdate then return end
+    self.Receive, self.Status, self.Snipped = self.Socket:receive(1024)
+    if self.Status == 'timeout' and not self.Started then
+        self.Started = true
+        self.Socket:send("GET "..self.Url.." HTTP/1.1\r\nHost: sx-bol.eu\r\n\r\n")
+    end
+    if (self.Receive or (#self.Snipped > 0)) and not self.RecvStarted then
+        self.RecvStarted = true
+        local recv,sent,time = self.Socket:getstats()
+        self.DownloadStatus = 'Downloading Script (0%)'
     end
 
-    if type(self.Callback) == 'function' then
-        self.Callback(self.OnlineVersion)
+    self.File = self.File .. (self.Receive or self.Snipped)
+    if self.File:find('</si'..'ze>') then
+        if not self.Size then
+            self.Size = tonumber(self.File:sub(self.File:find('<si'..'ze>')+6,self.File:find('</si'..'ze>')-1)) + self.File:len()
+        end
+        self.DownloadStatus = 'Downloading Script ('..math.round(100/self.Size*self.File:len(),2)..'%)'
+    end
+    if not (self.Receive or (#self.Snipped > 0)) and self.RecvStarted and math.round(100/self.Size*self.File:len(),2) > 95 then
+        self.DownloadStatus = 'Downloading Script (100%)'
+        local HeaderEnd, ContentStart = self.File:find('<sc'..'ript>')
+        local ContentEnd, _ = self.File:find('</scr'..'ipt>')
+        if not ContentStart or not ContentEnd then
+            if self.CallbackError and type(self.CallbackError) == 'function' then
+                self.CallbackError()
+            end
+        else
+            local f = io.open(self.SavePath,"w+b")
+            f:write(self.File:sub(ContentStart + 1,ContentEnd-1))
+            f:close()
+            if self.CallbackUpdate and type(self.CallbackUpdate) == 'function' then
+                self.CallbackUpdate(self.OnlineVersion,self.LocalVersion)
+            end
+        end
+        self.GotScriptUpdate = true
     end
 end
-
-local ForceReload = false
-SxUpdate(DariusPentaDunk_Version,
-	"raw.githubusercontent.com",
-	"/AMBER17/BoL/master/Darius-PentaDunk.version",
-	"/AMBER17/BoL/master/Darius-PentaDunk.lua",
-	SCRIPT_PATH.."/" .. GetCurrentEnv().FILE_NAME,
-	function(NewVersion) if NewVersion > DariusPentaDunk_Version then print("<font color=\"#F0Ff8d\"><b>Darius PentaDunk : </b></font> <font color=\"#FF0F0F\">Updated to "..NewVersion..". Please Reload with 2x F9</b></font>") ForceReload = true else print("<font color=\"#F0Ff8d\"><b>Darius PentaDunk : </b></font> <font color=\"#FF0F0F\">You have the Latest Version</b></font>") end 
-end)
-	
-if FileExist(LIB_PATH .. "/SxOrbWalk.lua") then
-	require("SxOrbWalk")
-else
-	SxUpdate(0,
-		"raw.githubusercontent.com",
-		"/Superx321/BoL/master/common/SxOrbWalk.Version",
-		"/Superx321/BoL/master/common/SxOrbWalk.lua",
-		LIB_PATH.."/SxOrbWalk.lua",
-		function(NewVersion) if NewVersion > 0 then print("<font color=\"#F0Ff8d\"><b>SxOrbWalk: </b></font> <font color=\"#FF0F0F\">Updated to "..NewVersion..". Please Reload with 2x F9</b></font>") ForceReload = true end 
-	end)
-end
-	
-if FileExist(LIB_PATH .. "/VPrediction.lua") then
-	require("VPrediction")
-	VP = VPrediction()
-	if VP.version >= 3 then	
-		SxUpdate(0,
-			"raw.githubusercontent.com",
-			"/SidaBoL/Scripts/master/Common/VPrediction.version",
-			"/SidaBoL/Scripts/master/Common/VPrediction.lua",
-			LIB_PATH.."/VPrediction.lua",
-			function(NewVersion) if NewVersion > 0 then print("<font color=\"#F0Ff8d\"><b>VPrediction: </b></font> <font color=\"#FF0F0F\">Updated to "..NewVersion..". Please Reload with 2x F9</b></font>") ForceReload = true end 
-		end)
-	end
-else
-	SxUpdate(0,
-		"raw.githubusercontent.com",
-		"/SidaBoL/Scripts/master/Common/VPrediction.version",
-		"/SidaBoL/Scripts/master/Common/VPrediction.lua",
-		LIB_PATH.."/VPrediction.lua",
-		function(NewVersion) if NewVersion > 0 then print("<font color=\"#F0Ff8d\"><b>VPrediction: </b></font> <font color=\"#FF0F0F\">Updated to "..NewVersion..". Please Reload with 2x F9</b></font>") ForceReload = true end 
-	end)
-end
-
-
-class 'Darius'
 
 function OnLoad()
-	require "VPrediction"
-	VP = VPrediction()
-	SAC = false
-	MMA = false
-	SX = false
-	print("<font color=\"#DF7401\"><b>Darius PentaDunk: </b></font><font color=\"#D7DF01\">Waiting for any OrbWalk authentification</b></font>")
-	DelayAction(function()	
-		CustomOnLoad()
-	end, 10)
+
+	CheckScriptUpdate()
+	CheckVPred()
+	if FileExist(LIB_PATH .. "/VPrediction.lua") then
+		CheckSxOrbWalk()
+	end
+	
+		if FileExist(LIB_PATH .. "/VPrediction.lua") and FileExist(LIB_PATH .. "/SxOrbWalk.lua") then
+		SAC = false
+		SX = false
+		print("<font color=\"#DF7401\"><b>Darius PentaDunk: </b></font><font color=\"#D7DF01\">Waiting for any OrbWalk authentification</b></font>")
+		DelayAction(function()	
+			CustomOnLoad()
+		end, 10)
+	end
+end
+
+function CheckScriptUpdate()
+	local ToUpdate = {}
+    ToUpdate.Version = 2.0
+    ToUpdate.UseHttps = true
+	ToUpdate.Name = "Darius - PentaDunk"
+    ToUpdate.Host = "raw.githubusercontent.com"
+    ToUpdate.VersionPath = "/AMBER17/BoL/master/Darius-PentaDunk.version"
+    ToUpdate.ScriptPath =  "/AMBER17/BoL/master/Darius-PentaDunk.lua"
+    ToUpdate.SavePath = SCRIPT_PATH.."/" .. GetCurrentEnv().FILE_NAME
+    ToUpdate.CallbackUpdate = function(NewVersion,OldVersion) print("<font color=\"#FF794C\"><b>" .. ToUpdate.Name .. ": </b></font> <font color=\"#FFDFBF\">Updated to "..NewVersion..". Please Reload with 2x F9</b></font>") end
+    ToUpdate.CallbackNoUpdate = function(OldVersion) print("<font color=\"#FF794C\"><b>" .. ToUpdate.Name .. ": </b></font> <font color=\"#FFDFBF\">No Updates Found</b></font>") end
+    ToUpdate.CallbackNewVersion = function(NewVersion) print("<font color=\"#FF794C\"><b>" .. ToUpdate.Name .. ": </b></font> <font color=\"#FFDFBF\">New Version found ("..NewVersion.."). Please wait until its downloaded</b></font>") end
+    ToUpdate.CallbackError = function(NewVersion) print("<font color=\"#FF794C\"><b>" .. ToUpdate.Name .. ": </b></font> <font color=\"#FFDFBF\">Error while Downloading. Please try again.</b></font>") end
+    ScriptUpdate(ToUpdate.Version,ToUpdate.UseHttps, ToUpdate.Host, ToUpdate.VersionPath, ToUpdate.ScriptPath, ToUpdate.SavePath, ToUpdate.CallbackUpdate,ToUpdate.CallbackNoUpdate, ToUpdate.CallbackNewVersion,ToUpdate.CallbackError)
+	
+end
+
+function CheckVPred()
+	if FileExist(LIB_PATH .. "/VPrediction.lua") then
+		require("VPrediction")
+		VP = VPrediction()
+	else
+		local ToUpdate = {}
+		ToUpdate.Version = 0.0
+		ToUpdate.UseHttps = true
+		ToUpdate.Name = "VPrediction"
+		ToUpdate.Host = "raw.githubusercontent.com"
+		ToUpdate.VersionPath = "/SidaBoL/Scripts/master/Common/VPrediction.version"
+		ToUpdate.ScriptPath =  "/SidaBoL/Scripts/master/Common/VPrediction.lua"
+		ToUpdate.SavePath = LIB_PATH.."/VPrediction.lua"
+		ToUpdate.CallbackUpdate = function(NewVersion,OldVersion) print("<font color=\"#FF794C\"><b>" .. ToUpdate.Name .. ": </b></font> <font color=\"#FFDFBF\">Updated to "..NewVersion..". Please Reload with 2x F9</b></font>") end
+		ToUpdate.CallbackNoUpdate = function(OldVersion) print("<font color=\"#FF794C\"><b>" .. ToUpdate.Name .. ": </b></font> <font color=\"#FFDFBF\">No Updates Found</b></font>") end
+		ToUpdate.CallbackNewVersion = function(NewVersion) print("<font color=\"#FF794C\"><b>" .. ToUpdate.Name .. ": </b></font> <font color=\"#FFDFBF\">New Version found ("..NewVersion.."). Please wait until its downloaded</b></font>") end
+		ToUpdate.CallbackError = function(NewVersion) print("<font color=\"#FF794C\"><b>" .. ToUpdate.Name .. ": </b></font> <font color=\"#FFDFBF\">Error while Downloading. Please try again.</b></font>") end
+		ScriptUpdate(ToUpdate.Version,ToUpdate.UseHttps, ToUpdate.Host, ToUpdate.VersionPath, ToUpdate.ScriptPath, ToUpdate.SavePath, ToUpdate.CallbackUpdate,ToUpdate.CallbackNoUpdate, ToUpdate.CallbackNewVersion,ToUpdate.CallbackError)
+	end
+end
+
+function CheckSxOrbWalk()
+	if not FileExist(LIB_PATH .. "/SxOrbWalk.lua") then
+		local ToUpdate = {}
+		ToUpdate.Version = 0.0
+		ToUpdate.UseHttps = true
+		ToUpdate.Name = "SxOrbWalk"
+		ToUpdate.Host = "raw.githubusercontent.com"
+		ToUpdate.VersionPath = "/Superx321/BoL/master/common/SxOrbWalk.Version"
+		ToUpdate.ScriptPath =  "/Superx321/BoL/master/common/SxOrbWalk.lua"
+		ToUpdate.SavePath = LIB_PATH.."/SxOrbWalk.lua"
+		ToUpdate.CallbackUpdate = function(NewVersion,OldVersion) print("<font color=\"#FF794C\"><b>" .. ToUpdate.Name .. ": </b></font> <font color=\"#FFDFBF\">Updated to "..NewVersion..". Please Reload with 2x F9</b></font>") end
+		ToUpdate.CallbackNoUpdate = function(OldVersion) print("<font color=\"#FF794C\"><b>" .. ToUpdate.Name .. ": </b></font> <font color=\"#FFDFBF\">No Updates Found</b></font>") end
+		ToUpdate.CallbackNewVersion = function(NewVersion) print("<font color=\"#FF794C\"><b>" .. ToUpdate.Name .. ": </b></font> <font color=\"#FFDFBF\">New Version found ("..NewVersion.."). Please wait until its downloaded</b></font>") end
+		ToUpdate.CallbackError = function(NewVersion) print("<font color=\"#FF794C\"><b>" .. ToUpdate.Name .. ": </b></font> <font color=\"#FFDFBF\">Error while Downloading. Please try again.</b></font>") end
+		ScriptUpdate(ToUpdate.Version,ToUpdate.UseHttps, ToUpdate.Host, ToUpdate.VersionPath, ToUpdate.ScriptPath, ToUpdate.SavePath, ToUpdate.CallbackUpdate,ToUpdate.CallbackNoUpdate, ToUpdate.CallbackNewVersion,ToUpdate.CallbackError)
+	end
 end
 
 function CustomOnLoad()
-	if _G.MMA_Loaded ~= nil then
-		MMA = true
-		print("<font color=\"#DF7401\"><b>Darius PentaDunk: </b></font><font color=\"#D7DF01\">MMA Detected & Loaded</b></font>")
-	elseif _G.AutoCarry ~= nil then
+	if _G.AutoCarry ~= nil then
 		SAC = true
 		print("<font color=\"#DF7401\"><b>Darius PentaDunk: </b></font><font color=\"#D7DF01\">SAC Detected & Loaded</b></font>")
 	else 
 		SX = true
 		require "SxOrbWalk"
-		print("<font color=\"#DF7401\"><b>Darius PentaDunk: </b></font><font color=\"#D7DF01\">No OrbWalk detected, SxOrbWalk loaded</b></font>")
 	end
 	Darius()
 end
@@ -191,8 +289,6 @@ function Darius:myMenu()
 	self.Settings:addSubMenu("["..myHero.charName.."] - Orbwalking Settings", "Orbwalking")
 		if SX then
 			SxOrb:LoadToMenu(self.Settings.Orbwalking)
-		elseif MMA then
-			self.Settings.Orbwalking:addParam("info", "MMA Detected & Loaded", SCRIPT_PARAM_INFO, "")
 		elseif SAC then
 			self.Settings.Orbwalking:addParam("info", "SAC Detected & Loaded", SCRIPT_PARAM_INFO, "")
 		end
@@ -272,8 +368,6 @@ function Darius:OnTick()
 		end
 	elseif SX then
 		SxOrb:ForceTarget(self.Target) 
-	elseif MMA then
-		MMA_ForceTarget(self.Target)
 	end
 	
 	self.comboKey = self.Settings.combo.comboKey
