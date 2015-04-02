@@ -1,99 +1,12 @@
+local CurrentVersion = 5.1
+
+
 if myHero.charName ~= "Blitzcrank" then return end
-
-local  BlitzcrankAssGrabber_Version = 4.15
-
-class "SxUpdate"
-function SxUpdate:__init(LocalVersion, Host, VersionPath, ScriptPath, SavePath, Callback)
-    self.Callback = Callback
-    self.LocalVersion = LocalVersion
-    self.Host = Host
-    self.VersionPath = VersionPath
-    self.ScriptPath = ScriptPath
-    self.SavePath = SavePath
-    self.LuaSocket = require("socket")
-    AddTickCallback(function() self:GetOnlineVersion() end)
-end
-
-function SxUpdate:GetOnlineVersion()
-    if not self.OnlineVersion and not self.VersionSocket then
-        self.VersionSocket = self.LuaSocket.connect("sx-bol.eu", 80)
-        self.VersionSocket:send("GET /BoL/TCPUpdater/GetScript.php?script="..self.Host..self.VersionPath.."&rand="..tostring(math.random(1000)).." HTTP/1.0\r\n\r\n")
-    end
-
-    if not self.OnlineVersion and self.VersionSocket then
-        self.VersionSocket:settimeout(0, 'b')
-        self.VersionSocket:settimeout(99999999, 't')
-        self.VersionReceive, self.VersionStatus = self.VersionSocket:receive('*a')
-    end
-
-    if not self.OnlineVersion and self.VersionSocket and self.VersionStatus ~= 'timeout' then
-        if self.VersionReceive then
-            self.OnlineVersion = tonumber(string.sub(self.VersionReceive, string.find(self.VersionReceive, "<bols".."cript>")+11, string.find(self.VersionReceive, "</bols".."cript>")-1))
-        else
-            print('AutoUpdate Failed')
-			self.OnlineVersion = 0
-        end
-        self:DownloadUpdate()
-    end
-end
-
-function SxUpdate:DownloadUpdate()
-    if self.OnlineVersion > self.LocalVersion then
-        self.ScriptSocket = self.LuaSocket.connect("sx-bol.eu", 80)
-        self.ScriptSocket:send("GET /BoL/TCPUpdater/GetScript.php?script="..self.Host..self.ScriptPath.."&rand="..tostring(math.random(1000)).." HTTP/1.0\r\n\r\n")
-        self.ScriptReceive, self.ScriptStatus = self.ScriptSocket:receive('*a')
-        self.ScriptRAW = string.sub(self.ScriptReceive, string.find(self.ScriptReceive, "<bols".."cript>")+11, string.find(self.ScriptReceive, "</bols".."cript>")-1)
-        local ScriptFileOpen = io.open(self.SavePath, "w+")
-        ScriptFileOpen:write(self.ScriptRAW)
-        ScriptFileOpen:close()
-    end
-
-    if type(self.Callback) == 'function' then
-        self.Callback(self.OnlineVersion)
-    end
-end
-
-local ForceReload = false
-SxUpdate(BlitzcrankAssGrabber_Version,
-	"raw.githubusercontent.com",
-	"/AMBER17/BoL/master/Blitzcrank-Ass-Grabber.Version",
-	"/AMBER17/BoL/master/Blitzcrank-Ass-Grabber.lua",
-	SCRIPT_PATH.."/" .. GetCurrentEnv().FILE_NAME,
-	function(NewVersion) if NewVersion > BlitzcrankAssGrabber_Version then print("<font color=\"#DF7401\"><b>Blitzcrank Ass-Grabber: </b></font> <font color=\"#D7DF01\">Updated to "..NewVersion..". Please Reload with 2x F9</b></font>") ForceReload = true else print("<font color=\"#DF7401\"><b>Blitzcrank Ass-Grabber: </b></font> <font color=\"#D7DF01\">You have the Latest Version</b></font>") end 
-end)
-	
-if FileExist(LIB_PATH .. "/SxOrbWalk.lua") then
-	require("SxOrbWalk")
-else
-	SxUpdate(0,
-		"raw.githubusercontent.com",
-		"/Superx321/BoL/master/common/SxOrbWalk.Version",
-		"/Superx321/BoL/master/common/SxOrbWalk.lua",
-		LIB_PATH.."/SxOrbWalk.lua",
-		function(NewVersion) if NewVersion > 0 then print("<font color=\"#F0Ff8d\"><b>SxOrbWalk: </b></font> <font color=\"#FF0F0F\">Updated to "..NewVersion..". Please Reload with 2x F9</b></font>") ForceReload = true end 
-	end)
-end
-	
 if FileExist(LIB_PATH .. "/VPrediction.lua") then
 	require("VPrediction")
 	VP = VPrediction()
-	if VP.version >= 3 then	
-		SxUpdate(0,
-			"raw.githubusercontent.com",
-			"/SidaBoL/Scripts/master/Common/VPrediction.version",
-			"/SidaBoL/Scripts/master/Common/VPrediction.lua",
-			LIB_PATH.."/VPrediction.lua",
-			function(NewVersion) if NewVersion > 0 then print("<font color=\"#F0Ff8d\"><b>VPrediction: </b></font> <font color=\"#FF0F0F\">Updated to "..NewVersion..". Please Reload with 2x F9</b></font>") ForceReload = true end 
-		end)
-	end
 else
-	SxUpdate(0,
-		"raw.githubusercontent.com",
-		"/SidaBoL/Scripts/master/Common/VPrediction.version",
-		"/SidaBoL/Scripts/master/Common/VPrediction.lua",
-		LIB_PATH.."/VPrediction.lua",
-		function(NewVersion) if NewVersion > 0 then print("<font color=\"#F0Ff8d\"><b>VPrediction: </b></font> <font color=\"#FF0F0F\">Updated to "..NewVersion..". Please Reload with 2x F9</b></font>") ForceReload = true end 
-	end)
+	print("VPrediction: Download the lib before use this script")
 end
 
 if VIP_USER and FileExist(LIB_PATH .. "/DivinePred.lua") then 
@@ -116,37 +29,29 @@ function OnLoad()
 end
 
 function CustomOnLoad()
-	if ForceReload then return end
-	print("<font color=\"#DF7401\"><b>Blitzcrank Ass-Grabber:</b></font> <font color=\"#D7DF01\"> Thanks for using this Script ! Enjoy Your Game ! </font>")
-	
-	if _G.MMA_Loaded ~= nil then
-		PrintChat("<font color=\"#DF7401\"><b>MMA: </b></font> <font color=\"#D7DF01\">Loaded</font>")
-		MMA = true
-		SAC = false
-		Sx = false
-	elseif _G.AutoCarry ~= nil then
+	if _G.AutoCarry ~= nil then
 		PrintChat("<font color=\"#DF7401\"><b>SAC: </b></font> <font color=\"#D7DF01\">Loaded</font>")
 		SAC = true
-		MMA = false
 		Sx = false
 	else
-		PrintChat("<font color=\"#DF7401\"><b>SxOrbWalk: </b></font> <font color=\"#D7DF01\">Loaded</font>")
 		Sx = true
-		MMA = false
 		SAC = false
+		if FileExist(LIB_PATH .. "/SxOrbWalk.lua") then
+			require("SxOrbWalk")
+		else
+			print("SxOrbWalk: Download the lib before use this script")
+		end
 	end
-	
+	print("<font color=\"#DF7401\"><b>Blitzcrank Ass-Grabber:</b></font> <font color=\"#FF0000\"> This Script stop to use AutoUpdate ! Make sure you got the latest Version </font>")
+	print("<font color=\"#DF7401\"><b>Blitzcrank Ass-Grabber:</b></font> <font color=\"#D7DF01\"> Thanks for using this Script ! Enjoy Your Game ! </font>")
 	TargetSelector = TargetSelector(TARGET_MOST_AD, 1350, DAMAGE_MAGICAL, false, true)
 	Variables()
 	Menu()
 end
 
 function CustomOnTick()
-	if ForceReload then return end
-	
 	TargetSelector:update()
 	Target = GetCustomTarget()
-	
 	if Sx then
 		SxOrb:ForceTarget(Target)
 	end
@@ -155,15 +60,11 @@ function CustomOnTick()
 			_G.AutoCarry.Orbwalker:Orbwalk(Target)
 		end
 	end
-	
-	
 	manaShield = tostring(math.ceil(ManashieldStrength()))
 	ComboKey = Settings.combo.comboKey
 	autoComboKey = Settings.autoCombo.autoCombo
 	Checks()
-	
 	KillSteall()
-	
 	if Target ~= nil then
 		if ComboKey then
 			Combo(Target)
@@ -174,7 +75,7 @@ function CustomOnTick()
 end
 
 function CustomOnDraw()
-	if ForceReload then return end
+	
 	if Settings.drawstats.stats then
 		UpdateWindow()
 		if Settings.drawstats.pourcentage then
@@ -232,7 +133,7 @@ function GetCustomTarget()
 end
 
 function CustomOnWndMsg(Msg, Key)	
-	if ForceReload then return end
+	
 	if Msg == WM_LBUTTONDOWN then
 		local minD = 0
 		local Target = nil
@@ -261,7 +162,7 @@ function ManashieldStrength()
 end
 
 function CustomOnProcessSpell(unit, spell)
-	if ForceReload then return end
+	
 	if spell.name == "RocketGrab" and unit.isMe then
 		nbgrabtotal=nbgrabtotal+1
 		missedgrab = (nbgrabtotal-nbgrabwin)
@@ -281,7 +182,7 @@ function CustomOnUpdateBuff(unit, buff, stacks)
 end
 
 function KillSteall()
-	if ForceReload then return end
+	
 	for _, unit in pairs(GetEnemyHeroes()) do
 		local health = unit.health
 		local dmgR = getDmg("R", unit, myHero) + (myHero.ap)
