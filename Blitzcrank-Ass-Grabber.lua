@@ -167,7 +167,7 @@ end
 
 function CheckScriptUpdate()
 	local ToUpdate = {}
-    ToUpdate.Version = 5.11
+    ToUpdate.Version = 5.12
     ToUpdate.UseHttps = true
 	ToUpdate.Name = "Blitzcrank-Ass-Grabber"
     ToUpdate.Host = "raw.githubusercontent.com"
@@ -358,8 +358,7 @@ function CustomOnProcessSpell(unit, spell)
     end
 end
 
-function CustomApplyBuff(unit, buff)
-	--[[print(buff)
+function CustomApplyBuff(unit, source,buff)
 	if unit and not unit.isMe and buff.name == "rocketgrab2" and unit.type == myHero.type then
 		print("Work")
 		nbgrabwin=nbgrabwin+ 1
@@ -368,7 +367,7 @@ function CustomApplyBuff(unit, buff)
 		if Settings.misc.autoE then
 			CastAutoE(unit)
 		end
-	end]]
+	end
 end
 
 function KillSteall()
