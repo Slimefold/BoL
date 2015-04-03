@@ -159,7 +159,7 @@ end
 
 function CheckScriptUpdate()
 	local ToUpdate = {}
-    ToUpdate.Version = 2.0
+    ToUpdate.Version = 2.1
     ToUpdate.UseHttps = true
 	ToUpdate.Name = "Darius - PentaDunk"
     ToUpdate.Host = "raw.githubusercontent.com"
@@ -234,8 +234,7 @@ function Darius:__init()
 	AddTickCallback(function() self:OnTick() end)
 	AddMsgCallback(function(Msg,Key) self:OnWndMsg(Msg,Key) end)
 	AddDrawCallback(function() self:OnDraw() end)
-	--AddProcessSpellCallback(function(unit,spell) self:OnProcessSpell(unit, spell) end)
-	AddUpdateBuffCallback(function(unit, buff, stacks) self:OnUpdateBuff(unit, buff, stacks) end)
+	if AddUpdateBuffCallback(function(unit, buff, stacks) self:OnUpdateBuff(unit, buff, stacks) end) ~= nil then AddUpdateBuffCallback(function(unit, buff, stacks) self:OnUpdateBuff(unit, buff, stacks) end) end
 	AddRemoveBuffCallback(function(unit,buff) self:OnRemoveBuff(unit,buff) end)
 	
 end
