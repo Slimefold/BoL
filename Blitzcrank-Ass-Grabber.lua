@@ -157,19 +157,17 @@ function OnLoad()
 		DelayAction(function()	
 			CustomOnLoad()
 			AddMsgCallback(CustomOnWndMsg)
-			AddApplyBuffCallback(CustomOnApplyBuff)
 			AddDrawCallback(CustomOnDraw)		
 			AddProcessSpellCallback(CustomOnProcessSpell)
 			AddTickCallback(CustomOnTick)
-			AddApplyBuffCallback(CustomOnApplyBuff)	
-			AddUpdateBuffCallback(CustomOnUpdateBuff)		
+			AddApplyBuffCallback(CustomApplyBuff)		
 		end, 6)
 	end
 end
 
 function CheckScriptUpdate()
 	local ToUpdate = {}
-    ToUpdate.Version = 5.1
+    ToUpdate.Version = 5.11
     ToUpdate.UseHttps = true
 	ToUpdate.Name = "Blitzcrank-Ass-Grabber"
     ToUpdate.Host = "raw.githubusercontent.com"
@@ -360,15 +358,17 @@ function CustomOnProcessSpell(unit, spell)
     end
 end
 
-function CustomOnUpdateBuff(unit, buff, stacks)
+function CustomApplyBuff(unit, buff)
+	--[[print(buff)
 	if unit and not unit.isMe and buff.name == "rocketgrab2" and unit.type == myHero.type then
+		print("Work")
 		nbgrabwin=nbgrabwin+ 1
 		missedgrab = missedgrab - 1
 		pourcentage =((nbgrabwin*100)/nbgrabtotal)
 		if Settings.misc.autoE then
 			CastAutoE(unit)
 		end
-	end
+	end]]
 end
 
 function KillSteall()
