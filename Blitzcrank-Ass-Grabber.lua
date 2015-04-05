@@ -360,7 +360,6 @@ end
 
 function CustomApplyBuff(source, unit,buff)
 	if unit and not unit.isMe and buff.name == "rocketgrab2" and unit.type == myHero.type then
-		print("Work")
 		nbgrabwin=nbgrabwin+ 1
 		missedgrab = missedgrab - 1
 		pourcentage =((nbgrabwin*100)/nbgrabtotal)
