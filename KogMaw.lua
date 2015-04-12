@@ -18,7 +18,7 @@ function OnLoad()
 	if (getVP or getDivine) and FileExist(LIB_PATH .. "/SxOrbWalk.lua") then
 		SAC = false
 		SX = false
-		print("<font color=\"#DF7401\"><b>KogMaw (BETA): </b></font><font color=\"#D7DF01\">Waiting for any OrbWalk authentification</b></font>")
+		print("<font color=\"#DF7401\"><b>Aurora's KogMaw (BETA): </b></font><font color=\"#D7DF01\">Waiting for any OrbWalk authentification</b></font>")
 		DelayAction(function()	
 			CustomOnLoad()
 		end, 10)
@@ -37,6 +37,7 @@ function CustomOnLoad()
 end
 
 function KogMaw:__init()
+	print("<font color=\"#DF7401\"><b>Aurora's KogMaw (BETA): </b></font><font color=\"#D7DF01\">Script Loaded ! This script dont have autoupdate ! Check by yourself on the forum if a new version available</b></font>")
 	self:myVariables()
 	self:myMenu()
 	AddTickCallback(function() self:OnTick() end)
