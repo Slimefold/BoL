@@ -191,7 +191,9 @@ function CheckVPred()
 	else
 		local ToUpdate = {}
 		ToUpdate.Version = 0.0
-		ToUpdate.UseHttps = true
+		ToUpdate.UseHttps = t
+2da0
+rue
 		ToUpdate.Name = "VPrediction"
 		ToUpdate.Host = "raw.githubusercontent.com"
 		ToUpdate.VersionPath = "/SidaBoL/Scripts/master/Common/VPrediction.version"
@@ -407,7 +409,9 @@ function KogMaw:OnWndMsg(Msg,Key)
 			if self.SelectedTarget and self.Target.charName == self.SelectedTarget.charName then
 				self.SelectedTarget = nil
 			else
-				self.SelectedTarget = self.Target
+				self.Selecte
+18a9
+dTarget = self.Target
 			end
 		end
 	end
