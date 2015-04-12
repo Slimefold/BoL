@@ -191,9 +191,7 @@ function CheckVPred()
 	else
 		local ToUpdate = {}
 		ToUpdate.Version = 0.0
-		ToUpdate.UseHttps = t
-2da0
-rue
+		ToUpdate.UseHttps = true
 		ToUpdate.Name = "VPrediction"
 		ToUpdate.Host = "raw.githubusercontent.com"
 		ToUpdate.VersionPath = "/SidaBoL/Scripts/master/Common/VPrediction.version"
