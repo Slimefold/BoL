@@ -1,225 +1,26 @@
 if myHero.charName ~= "KogMaw" then return end
 class 'KogMaw'
-class "ScriptUpdate"
 getDivine = false
-getVP=false
-
-if VIP_USER and FileExist(LIB_PATH .. "/DivinePred.lua") then 
-	require "DivinePred" 
-	dp = DivinePred()
-	getDivine = true
-	
-end
-
-function ScriptUpdate:__init(LocalVersion,UseHttps, Host, VersionPath, ScriptPath, SavePath, CallbackUpdate, CallbackNoUpdate, CallbackNewVersion,CallbackError)
-    self.LocalVersion = LocalVersion
-    self.Host = Host
-    self.VersionPath = '/BoL/TCPUpdater/GetScript'..(UseHttps and '3' or '4')..'.php?script='..self:Base64Encode(self.Host..VersionPath)..'&rand='..math.random(99999999)
-    self.ScriptPath = '/BoL/TCPUpdater/GetScript'..(UseHttps and '3' or '4')..'.php?script='..self:Base64Encode(self.Host..ScriptPath)..'&rand='..math.random(99999999)
-    self.SavePath = SavePath
-    self.CallbackUpdate = CallbackUpdate
-    self.CallbackNoUpdate = CallbackNoUpdate
-    self.CallbackNewVersion = CallbackNewVersion
-    self.CallbackError = CallbackError
-    self:CreateSocket(self.VersionPath)
-    self.DownloadStatus = 'Connect to Server for VersionInfo'
-    AddTickCallback(function() self:GetOnlineVersion() end)
-end
-
-function ScriptUpdate:CreateSocket(url)
-    if not self.LuaSocket then
-        self.LuaSocket = require("socket")
-    else
-        self.Socket:close()
-        self.Socket = nil
-        self.Size = nil
-        self.RecvStarted = false
-    end
-    self.LuaSocket = require("socket")
-    self.Socket = self.LuaSocket.tcp()
-    self.Socket:settimeout(0, 'b')
-    self.Socket:settimeout(99999999, 't')
-    self.Socket:connect('sx-bol.eu', 80)
-    self.Url = url
-    self.Started = false
-    self.LastPrint = ""
-    self.File = ""
-end
-
-function ScriptUpdate:Base64Encode(data)
-    local b='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/'
-    return ((data:gsub('.', function(x)
-        local r,b='',x:byte()
-        for i=8,1,-1 do r=r..(b%2^i-b%2^(i-1)>0 and '1' or '0') end
-        return r;
-    end)..'0000'):gsub('%d%d%d?%d?%d?%d?', function(x)
-        if (#x < 6) then return '' end
-        local c=0
-        for i=1,6 do c=c+(x:sub(i,i)=='1' and 2^(6-i) or 0) end
-        return b:sub(c+1,c+1)
-    end)..({ '', '==', '=' })[#data%3+1])
-end
-
-function ScriptUpdate:GetOnlineVersion()
-    if self.GotScriptVersion then return end
-
-    self.Receive, self.Status, self.Snipped = self.Socket:receive(1024)
-    if self.Status == 'timeout' and not self.Started then
-        self.Started = true
-        self.Socket:send("GET "..self.Url.." HTTP/1.1\r\nHost: sx-bol.eu\r\n\r\n")
-    end
-    if (self.Receive or (#self.Snipped > 0)) and not self.RecvStarted then
-        self.RecvStarted = true
-        local recv,sent,time = self.Socket:getstats()
-        self.DownloadStatus = 'Downloading VersionInfo (0%)'
-    end
-
-    self.File = self.File .. (self.Receive or self.Snipped)
-    if self.File:find('</size>') then
-        if not self.Size then
-            self.Size = tonumber(self.File:sub(self.File:find('<si'..'ze>')+6,self.File:find('</s'..'ize>')-1)) + self.File:len()
-        end
-        self.DownloadStatus = 'Downloading VersionInfo ('..math.round(100/self.Size*self.File:len(),2)..'%)'
-    end
-    if not (self.Receive or (#self.Snipped > 0)) and self.RecvStarted and self.Size and math.round(100/self.Size*self.File:len(),2) > 95 then
-        self.DownloadStatus = 'Downloading VersionInfo (100%)'
-        local HeaderEnd, ContentStart = self.File:find('<scr'..'ipt>')
-        local ContentEnd, _ = self.File:find('</sc'..'ript>')
-        if not ContentStart or not ContentEnd then
-            if self.CallbackError and type(self.CallbackError) == 'function' then
-                self.CallbackError()
-            end
-        else
-            self.OnlineVersion = tonumber(self.File:sub(ContentStart + 1,ContentEnd-1))
-            if self.OnlineVersion > self.LocalVersion then
-                if self.CallbackNewVersion and type(self.CallbackNewVersion) == 'function' then
-                    self.CallbackNewVersion(self.OnlineVersion,self.LocalVersion)
-                end
-                self:CreateSocket(self.ScriptPath)
-                self.DownloadStatus = 'Connect to Server for ScriptDownload'
-                AddTickCallback(function() self:DownloadUpdate() end)
-            else
-                if self.CallbackNoUpdate and type(self.CallbackNoUpdate) == 'function' then
-                    self.CallbackNoUpdate(self.LocalVersion)
-                end
-            end
-        end
-        self.GotScriptVersion = true
-    end
-end
-
-function ScriptUpdate:DownloadUpdate()
-    if self.GotScriptUpdate then return end
-    self.Receive, self.Status, self.Snipped = self.Socket:receive(1024)
-    if self.Status == 'timeout' and not self.Started then
-        self.Started = true
-        self.Socket:send("GET "..self.Url.." HTTP/1.1\r\nHost: sx-bol.eu\r\n\r\n")
-    end
-    if (self.Receive or (#self.Snipped > 0)) and not self.RecvStarted then
-        self.RecvStarted = true
-        local recv,sent,time = self.Socket:getstats()
-        self.DownloadStatus = 'Downloading Script (0%)'
-    end
-
-    self.File = self.File .. (self.Receive or self.Snipped)
-    if self.File:find('</si'..'ze>') then
-        if not self.Size then
-            self.Size = tonumber(self.File:sub(self.File:find('<si'..'ze>')+6,self.File:find('</si'..'ze>')-1)) + self.File:len()
-        end
-        self.DownloadStatus = 'Downloading Script ('..math.round(100/self.Size*self.File:len(),2)..'%)'
-    end
-    if not (self.Receive or (#self.Snipped > 0)) and self.RecvStarted and math.round(100/self.Size*self.File:len(),2) > 95 then
-        self.DownloadStatus = 'Downloading Script (100%)'
-        local HeaderEnd, ContentStart = self.File:find('<sc'..'ript>')
-        local ContentEnd, _ = self.File:find('</scr'..'ipt>')
-        if not ContentStart or not ContentEnd then
-            if self.CallbackError and type(self.CallbackError) == 'function' then
-                self.CallbackError()
-            end
-        else
-            local f = io.open(self.SavePath,"w+b")
-            f:write(self.File:sub(ContentStart + 1,ContentEnd-1))
-            f:close()
-            if self.CallbackUpdate and type(self.CallbackUpdate) == 'function' then
-                self.CallbackUpdate(self.OnlineVersion,self.LocalVersion)
-            end
-        end
-        self.GotScriptUpdate = true
-    end
-end
+getVP = false
 
 function OnLoad()
-
-	CheckScriptUpdate()
-	CheckVPred()
-	if getVP then
-		CheckSxOrbWalk()
+	if VIP_USER and FileExist(LIB_PATH .. "/DivinePred.lua") then 
+		require "DivinePred" 
+		dp = DivinePred()
+		getDivine = true
 	end
-	
-	if FileExist(LIB_PATH .. "/VPrediction.lua") and FileExist(LIB_PATH .. "/SxOrbWalk.lua") then
+	if FileExist(LIB_PATH .. "/VPrediction.lua") then 
+		require "VPrediction" 
+		VP = VPrediction()
+		getVP = true
+	end
+	if (getVP or getDivine) and FileExist(LIB_PATH .. "/SxOrbWalk.lua") then
 		SAC = false
 		SX = false
 		print("<font color=\"#DF7401\"><b>KogMaw (BETA): </b></font><font color=\"#D7DF01\">Waiting for any OrbWalk authentification</b></font>")
 		DelayAction(function()	
 			CustomOnLoad()
 		end, 10)
-	end
-end
-
-function CheckScriptUpdate()
-	local ToUpdate = {}
-    ToUpdate.Version = 1.01
-    ToUpdate.UseHttps = true
-	ToUpdate.Name = "KogMaw"
-    ToUpdate.Host = "raw.githubusercontent.com"
-    ToUpdate.VersionPath = "/AMBER17/BoL/master/KogMaw.version"
-    ToUpdate.ScriptPath =  "/AMBER17/BoL/master/KogMaw.lua"
-    ToUpdate.SavePath = SCRIPT_PATH.."/" .. GetCurrentEnv().FILE_NAME
-    ToUpdate.CallbackUpdate = function(NewVersion,OldVersion) print("<font color=\"#FF794C\"><b>" .. ToUpdate.Name .. ": </b></font> <font color=\"#FFDFBF\">Updated to "..NewVersion..". Please Reload with 2x F9</b></font>") end
-    ToUpdate.CallbackNoUpdate = function(OldVersion) print("<font color=\"#FF794C\"><b>" .. ToUpdate.Name .. ": </b></font> <font color=\"#FFDFBF\">No Updates Found</b></font>") end
-    ToUpdate.CallbackNewVersion = function(NewVersion) print("<font color=\"#FF794C\"><b>" .. ToUpdate.Name .. ": </b></font> <font color=\"#FFDFBF\">New Version found ("..NewVersion.."). Please wait until its downloaded</b></font>") end
-    ToUpdate.CallbackError = function(NewVersion) print("<font color=\"#FF794C\"><b>" .. ToUpdate.Name .. ": </b></font> <font color=\"#FFDFBF\">Error while Downloading. Please try again.</b></font>") end
-    ScriptUpdate(ToUpdate.Version,ToUpdate.UseHttps, ToUpdate.Host, ToUpdate.VersionPath, ToUpdate.ScriptPath, ToUpdate.SavePath, ToUpdate.CallbackUpdate,ToUpdate.CallbackNoUpdate, ToUpdate.CallbackNewVersion,ToUpdate.CallbackError)
-	
-end
-
-function CheckVPred()
-	if FileExist(LIB_PATH .. "/VPrediction.lua") then
-		require("VPrediction")
-		VP = VPrediction()
-		getVP = true
-	else
-		local ToUpdate = {}
-		ToUpdate.Version = 0.0
-		ToUpdate.UseHttps = true
-		ToUpdate.Name = "VPrediction"
-		ToUpdate.Host = "raw.githubusercontent.com"
-		ToUpdate.VersionPath = "/SidaBoL/Scripts/master/Common/VPrediction.version"
-		ToUpdate.ScriptPath =  "/SidaBoL/Scripts/master/Common/VPrediction.lua"
-		ToUpdate.SavePath = LIB_PATH.."/VPrediction.lua"
-		ToUpdate.CallbackUpdate = function(NewVersion,OldVersion) print("<font color=\"#FF794C\"><b>" .. ToUpdate.Name .. ": </b></font> <font color=\"#FFDFBF\">Updated to "..NewVersion..". Please Reload with 2x F9</b></font>") end
-		ToUpdate.CallbackNoUpdate = function(OldVersion) print("<font color=\"#FF794C\"><b>" .. ToUpdate.Name .. ": </b></font> <font color=\"#FFDFBF\">No Updates Found</b></font>") end
-		ToUpdate.CallbackNewVersion = function(NewVersion) print("<font color=\"#FF794C\"><b>" .. ToUpdate.Name .. ": </b></font> <font color=\"#FFDFBF\">New Version found ("..NewVersion.."). Please wait until its downloaded</b></font>") end
-		ToUpdate.CallbackError = function(NewVersion) print("<font color=\"#FF794C\"><b>" .. ToUpdate.Name .. ": </b></font> <font color=\"#FFDFBF\">Error while Downloading. Please try again.</b></font>") end
-		ScriptUpdate(ToUpdate.Version,ToUpdate.UseHttps, ToUpdate.Host, ToUpdate.VersionPath, ToUpdate.ScriptPath, ToUpdate.SavePath, ToUpdate.CallbackUpdate,ToUpdate.CallbackNoUpdate, ToUpdate.CallbackNewVersion,ToUpdate.CallbackError)
-	end
-end
-
-function CheckSxOrbWalk()
-	if not FileExist(LIB_PATH .. "/SxOrbWalk.lua") then
-		local ToUpdate = {}
-		ToUpdate.Version = 0.0
-		ToUpdate.UseHttps = true
-		ToUpdate.Name = "SxOrbWalk"
-		ToUpdate.Host = "raw.githubusercontent.com"
-		ToUpdate.VersionPath = "/Superx321/BoL/master/common/SxOrbWalk.Version"
-		ToUpdate.ScriptPath =  "/Superx321/BoL/master/common/SxOrbWalk.lua"
-		ToUpdate.SavePath = LIB_PATH.."/SxOrbWalk.lua"
-		ToUpdate.CallbackUpdate = function(NewVersion,OldVersion) print("<font color=\"#FF794C\"><b>" .. ToUpdate.Name .. ": </b></font> <font color=\"#FFDFBF\">Updated to "..NewVersion..". Please Reload with 2x F9</b></font>") end
-		ToUpdate.CallbackNoUpdate = function(OldVersion) print("<font color=\"#FF794C\"><b>" .. ToUpdate.Name .. ": </b></font> <font color=\"#FFDFBF\">No Updates Found</b></font>") end
-		ToUpdate.CallbackNewVersion = function(NewVersion) print("<font color=\"#FF794C\"><b>" .. ToUpdate.Name .. ": </b></font> <font color=\"#FFDFBF\">New Version found ("..NewVersion.."). Please wait until its downloaded</b></font>") end
-		ToUpdate.CallbackError = function(NewVersion) print("<font color=\"#FF794C\"><b>" .. ToUpdate.Name .. ": </b></font> <font color=\"#FFDFBF\">Error while Downloading. Please try again.</b></font>") end
-		ScriptUpdate(ToUpdate.Version,ToUpdate.UseHttps, ToUpdate.Host, ToUpdate.VersionPath, ToUpdate.ScriptPath, ToUpdate.SavePath, ToUpdate.CallbackUpdate,ToUpdate.CallbackNoUpdate, ToUpdate.CallbackNewVersion,ToUpdate.CallbackError)
 	end
 end
 
@@ -235,8 +36,8 @@ function CustomOnLoad()
 end
 
 function KogMaw:__init()
-	self:myMenu()
 	self:myVariables()
+	self:myMenu()
 	AddTickCallback(function() self:OnTick() end)
 	AddDrawCallback(function() self:OnDraw() end)
 	AddCastSpellCallback (function(iSpell,startPos,endPos,targetUnit) self:OnCastSpell(iSpell,startPos,endPos,targetUnit) end)
@@ -265,9 +66,9 @@ end
 function KogMaw:myVariables()
 	self.TargetSelector = TargetSelector(TARGET_LOW_HP, 1900, DAMAGE_PHYSICAL, false, true)
 	self.Spells = {
-		Q = { Range = self.Settings.spells.Qspells.qRange, Width = 70, Delay = 0.4, Speed = 900, TS = 0, Ready = function() return myHero:CanUseSpell(0) == 0 end,},
+		Q = { Range = 1000, Width = 70, Delay = 0.4, Speed = 900, TS = 0, Ready = function() return myHero:CanUseSpell(0) == 0 end,},
 		W = { Ready = function() return myHero:CanUseSpell(1) == 0 end,},
-		E = { Range = self.Settings.spells.Espells.eRange, Width = 120, Delay = 0.5, Speed = 800, TS = 0, Ready = function() return myHero:CanUseSpell(2) == 0 end,},
+		E = { Range = 1200, Width = 120, Delay = 0.5, Speed = 800, TS = 0, Ready = function() return myHero:CanUseSpell(2) == 0 end,},
 		R = { Range = 1200 , Ranget = {1200,1500,1800} , Width = 65, Delay = 0.6, Speed = 900, TS = 0, Ready = function() return myHero:CanUseSpell(3) == 0 end,},
 	}
 	
@@ -285,7 +86,7 @@ function KogMaw:myVariables()
 end
 
 function KogMaw:myMenu()
-	self.Settings = scriptConfig("KogMaw", "Aurora Scripters™")
+	self.Settings = scriptConfig("KogMaw", "Aurora Scriptersâ?¢")
 	
 		self.Settings:addSubMenu("["..myHero.charName.."] - Combo Settings (SBTW)", "combo")
 			self.Settings.combo:addParam("comboKey", "Combo Key", SCRIPT_PARAM_ONKEYDOWN, false, 32)
@@ -331,7 +132,11 @@ function KogMaw:myMenu()
 			self.Settings.draw:addParam("drawR", "Draw (E) Range", SCRIPT_PARAM_ONOFF, true)
 				
 		self.Settings:addSubMenu("["..myHero.charName.."] - Prediction Settings", "prediction")
-			self.Settings.prediction:addParam("predictionType", "0 = VPred | 1 = DP" , SCRIPT_PARAM_SLICE, 0, 0, 1, 0)
+			if getDivine then
+				self.Settings.prediction:addParam("predictionType", "0 = VPred | 1 = DP" , SCRIPT_PARAM_SLICE, 1, 0, 1, 0)
+			else
+				self.Settings.prediction:addParam("predictionType", "0 = VPred | 1 = DP" , SCRIPT_PARAM_SLICE, 0, 0, 1, 0)
+			end
 			self.Settings.prediction:addParam("info", "-> DivinePred have a better prediction", SCRIPT_PARAM_INFO, "")
 		
 		self.Settings:addSubMenu("["..myHero.charName.."] - Orbwalking Settings", "Orbwalking")
@@ -427,14 +232,6 @@ function KogMaw:OnTick()
 	if self.isPassive and self.Settings.misc.useP then
 		self:usePassive()
 	else
-	
-		if SAC then
-			if _G.AutoCarry.Keys.AutoCarry then
-				_G.AutoCarry.Orbwalker:Orbwalk(self.Target)
-			end
-		elseif SX then
-			SxOrb:ForceTarget(self.Target) 
-		end
 		
 		self.comboKey = self.Settings.combo.comboKey
 		self.harassKey = self.Settings.harass.harassKey
@@ -459,7 +256,7 @@ function KogMaw:Combo(unit)
 end
 
 function KogMaw:CastQ(unit)
-	if self.Spells.Q.Ready() and GetDistance(unit) <= self.Spells.Q.Range + 100 and GetDistance(unit) > self.Settings.spells.Qspells.minRange then
+	if self.Spells.Q.Ready() and GetDistance(unit) <= self.Settings.spells.Qspells.qRange and GetDistance(unit) > self.Settings.spells.Qspells.minRange then
 		if self.Settings.prediction.predictionType == 1 then
 			local target = DPTarget(unit)
 			self.state , self.hitpos, self.perc = dp:predict(target, self.SkillShotQ,2, nil)
@@ -474,7 +271,7 @@ function KogMaw:CastQ(unit)
 end
 
 function KogMaw:CastW(unit)
-	if self.Settings.spells.Wspells.wType == 0 then
+	if self.Settings.spells.Wspells.wType == 1 then
 		if self.Spells.W.Ready() and GetDistance(unit) <= self.aaRange + self:GetBonusRange() then
 			CastSpell(_W)
 		end
@@ -486,7 +283,7 @@ function KogMaw:CastW(unit)
 end
 
 function KogMaw:CastE(unit)
-	if self.Spells.E.Ready() and GetDistance(unit) <= self.Spells.E.Range + 100 and GetDistance(unit) > self.Settings.spells.Espells.minRange then
+	if self.Spells.E.Ready() and GetDistance(unit) <= self.Settings.spells.Espells.eRange and GetDistance(unit) > self.Settings.spells.Espells.minRange then
 		if self.Settings.prediction.predictionType == 1 then
 			local target = DPTarget(unit)
 			self.state , self.hitpos, self.perc = dp:predict(target, self.SkillShotE,2, nil)
