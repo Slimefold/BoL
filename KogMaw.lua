@@ -82,9 +82,11 @@ function KogMaw:myVariables()
 	self.lastW = 0
 	
 	if myHero:GetSpellData(_R).level == 3 then self.Spells.R.Range = self.Spells.R.Ranget[3] end
-	self.SkillShotR = CircleSS(self.Spells.R.Speed,self.Spells.R.Range,self.Spells.R.Width,self.Spells.R.Delay, math.huge)
-	self.SkillShotQ = LineSS(self.Spells.Q.Speed,self.Spells.Q.Range,self.Spells.Q.Width,self.Spells.Q.Delay, 0)
-	self.SkillShotE = LineSS(self.Spells.E.Speed,self.Spells.E.Range,self.Spells.E.Width,self.Spells.E.Delay, math.huge)
+	if getDivine then
+		self.SkillShotR = CircleSS(self.Spells.R.Speed,self.Spells.R.Range,self.Spells.R.Width,self.Spells.R.Delay, math.huge)
+		self.SkillShotQ = LineSS(self.Spells.Q.Speed,self.Spells.Q.Range,self.Spells.Q.Width,self.Spells.Q.Delay, 0)
+		self.SkillShotE = LineSS(self.Spells.E.Speed,self.Spells.E.Range,self.Spells.E.Width,self.Spells.E.Delay, math.huge)
+	end
 end
 
 function KogMaw:myMenu()
