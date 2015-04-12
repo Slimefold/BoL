@@ -402,14 +402,11 @@ function KogMaw:OnWndMsg(Msg,Key)
 				end
 			end
 		end
-
 		if self.Target and self.minD < 115 then
 			if self.SelectedTarget and self.Target.charName == self.SelectedTarget.charName then
 				self.SelectedTarget = nil
 			else
-				self.Selecte
-18a9
-dTarget = self.Target
+				self.SelectedTarget = self.Target
 			end
 		end
 	end
