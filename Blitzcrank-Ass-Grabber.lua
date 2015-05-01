@@ -154,20 +154,19 @@ function OnLoad()
 	end
 	
 	if FileExist(LIB_PATH .. "/VPrediction.lua") and FileExist(LIB_PATH .. "/SxOrbWalk.lua") then
-		DelayAction(function()	
-			CustomOnLoad()
-			AddMsgCallback(CustomOnWndMsg)
-			AddDrawCallback(CustomOnDraw)		
-			AddProcessSpellCallback(CustomOnProcessSpell)
-			AddTickCallback(CustomOnTick)
-			AddApplyBuffCallback(CustomApplyBuff)		
-		end, 6)
+		if _G.Reborn_Loaded ~= nil then
+			SAC = true
+		else 
+			Sx = true
+			require "SxOrbWalk"
+		end
+		CustomOnLoad()
 	end
 end
 
 function CheckScriptUpdate()
 	local ToUpdate = {}
-    ToUpdate.Version = 5.13
+    ToUpdate.Version = 5.20
     ToUpdate.UseHttps = true
 	ToUpdate.Name = "Blitzcrank-Ass-Grabber"
     ToUpdate.Host = "raw.githubusercontent.com"
@@ -222,16 +221,12 @@ function CheckSxOrbWalk()
 end
 
 function CustomOnLoad()
-	if _G.AutoCarry ~= nil then
-		PrintChat("<font color=\"#DF7401\"><b>SAC: </b></font> <font color=\"#D7DF01\">Loaded</font>")
-		SAC = true
-		Sx = false
-	else
-		Sx = true
-		SAC = false
-		require "SxOrbWalk"
-	end
 	print("<font color=\"#DF7401\"><b>Blitzcrank Ass-Grabber:</b></font> <font color=\"#D7DF01\"> Thanks for using this Script ! Enjoy Your Game ! </font>")
+	AddMsgCallback(CustomOnWndMsg)
+	AddDrawCallback(CustomOnDraw)		
+	AddProcessSpellCallback(CustomOnProcessSpell)
+	AddTickCallback(CustomOnTick)
+	AddUpdateBuffCallback(CustomUpdateBuff)		
 	TargetSelector = TargetSelector(TARGET_MOST_AD, 1350, DAMAGE_MAGICAL, false, true)
 	Variables()
 	Menu()
@@ -240,10 +235,7 @@ end
 function CustomOnTick()
 	TargetSelector:update()
 	Target = GetCustomTarget()
-	if Sx then
-		SxOrb:ForceTarget(Target)
-	end
-	if SAC then
+	if SAC and _G.AutoCarry then
 		if _G.AutoCarry.Keys.AutoCarry then
 			_G.AutoCarry.Orbwalker:Orbwalk(Target)
 		end
@@ -358,7 +350,20 @@ function CustomOnProcessSpell(unit, spell)
     end
 end
 
+--[[
 function CustomApplyBuff(source, unit,buff)
+	if unit and not unit.isMe and buff.name == "rocketgrab2" and unit.type == myHero.type then
+		nbgrabwin=nbgrabwin+ 1
+		missedgrab = missedgrab - 1
+		pourcentage =((nbgrabwin*100)/nbgrabtotal)
+		if Settings.misc.autoE then
+			CastAutoE(unit)
+		end
+	end
+end
+]]
+
+function CustomUpdateBuff(unit,buff)
 	if unit and not unit.isMe and buff.name == "rocketgrab2" and unit.type == myHero.type then
 		nbgrabwin=nbgrabwin+ 1
 		missedgrab = missedgrab - 1
