@@ -1,5 +1,5 @@
 --[[ 
-Version 2.41
+Version 2.42
 Xerath - High Voltage by AMBER_
 ENJOY IT
 ]]
@@ -173,7 +173,7 @@ end
 
 function CheckScriptUpdate()
 	local ToUpdate = {}
-    ToUpdate.Version = 2.41
+    ToUpdate.Version = 2.42
     ToUpdate.UseHttps = true
 	ToUpdate.Name = "Xerath - High Voltage"
     ToUpdate.Host = "raw.githubusercontent.com"
@@ -269,7 +269,7 @@ function Xerath:OnTick()
 	if self.CanMove then 
 		if SX then 
 			_G.SxOrb:EnableAttacks()
-		elseif SAC then
+		elseif SAC and _G.AutoCarry then
 			_G.AutoCarry.MyHero:AttacksEnabled(true)
 		end
 	end	
