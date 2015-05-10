@@ -1,6 +1,6 @@
 function Update()
 ScriptUpdate(
-    1.1, -- local Version
+    1.111, -- local Version
     true, -- Using HTTPS (true) or HTTP (false). Github is always true
     'raw.githubusercontent.com',
     "/AMBER17/BoL/master/test.version",
@@ -19,4 +19,4 @@ function OnLoad()
 	Update()
 end
 
---Works
+--Works2
