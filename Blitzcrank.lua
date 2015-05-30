@@ -136,6 +136,7 @@ function OnLoad()
 end
 
 function Blitzcrank:__init()
+	print("<font color=\"#FE2E64\"><b>Blitzcrank Ass-Grabber: </b></font><font color=\"#FA58D0\"> is successfuly loaded </b></font>")
 	self:myVariable()
 	self:myMenu()
 	self:resetMenu()
@@ -253,16 +254,20 @@ function Blitzcrank:OnUpdateBuff(unit,buff,stacks)
 		end
 	end
 	
-	if self.Settings.spell.rSpell.type == 1 and self.Settings.combo.comboKey then
+	if self.Settings.spell.rSpell.type == 2 and self.Settings.combo.comboKey then
 		if buff and buff.name == "powerfistslow" and ValidTarget(unit) then
 			CastSpell(_R)
 		end
 	end
-	
-	if buff and buff.name =="rocketgrab2" and unit and unit.team ~= myHero.team then
+
+	if buff and buff.name =="rocketgrab2" and unit and unit.type == myHero.type and unit.team ~= myHero.team then
+		print("<font color=\"#FE2E64\"><b>Blitzcrank Ass-Grabber: </b></font><font color=\"#FA58D0\"> Nice Grab :D </b></font>")
 		self.nbgrabwin = self.nbgrabwin + 1
 		self.missedgrab = self.missedgrab - 1
 		self.pourcentage = ((self.nbgrabwin*100)/self.nbgrabtotal)
+	end
+	if buff and buff.name =="rocketgrab2" and unit and unit.type ~= myHero.type and unit.team ~= myHero.team then
+		print("<font color=\"#FE2E64\"><b>Blitzcrank Ass-Grabber: </b></font><font color=\"#FA58D0\"> Try again :( </b></font>")
 	end
 end
 
@@ -283,6 +288,7 @@ function Blitzcrank:myMenu()
 			self.Settings.combo:addParam("useW", "Use (W) in Combo", SCRIPT_PARAM_ONOFF, true)
 			self.Settings.combo:addParam("useE", "Use (E) in Combo", SCRIPT_PARAM_ONOFF, true)
 			self.Settings.combo:addParam("useR", "Use (R) in Combo", SCRIPT_PARAM_ONOFF, true)
+			self.Settings.combo:permaShow("comboKey")
 			
 		self.Settings:addSubMenu("["..myHero.charName.."] - AutoGrab Settings", "autoGrab")
 			self.Settings.autoGrab:addParam("autograbKey", "AutoGrab Key", SCRIPT_PARAM_ONKEYTOGGLE, false, GetKey("T"))
@@ -290,7 +296,9 @@ function Blitzcrank:myMenu()
 			for i, unit in pairs(self.myEnemyTable) do
 				self.Settings.autoGrab:addParam(tostring(unit.charName),"Use On: "..tostring(unit.charName).."", SCRIPT_PARAM_ONOFF, true)
 			end
-
+			self.Settings.autoGrab:permaShow("autograbKey")
+			self.Settings.autoGrab:permaShow("orbWalk")
+			
 		self.Settings:addSubMenu("["..myHero.charName.."] - Spells Settings", "spell")
 			self.Settings.spell:addSubMenu("["..myHero.charName.."] - (Q) Settings", "qSpell")
 				self.Settings.spell.qSpell:addParam("minRange","Min (Q) Range for Grab", SCRIPT_PARAM_SLICE, 200, 100, 400, 0)
@@ -299,17 +307,18 @@ function Blitzcrank:myMenu()
 				for i, unit in pairs(self.myEnemyTable) do
 					self.Settings.spell.qSpell:addParam(tostring(unit.charName),"Use On: "..tostring(unit.charName).."", SCRIPT_PARAM_ONOFF, true)
 				end
+				self.Settings.spell.qSpell:permaShow("onlyE")
 			self.Settings.spell:addSubMenu("["..myHero.charName.."] - (W) Settings", "wSpell")
 				self.Settings.spell.wSpell:addParam("onlyQ", "Only Use if (Q) Ready", SCRIPT_PARAM_ONOFF, true)
 			self.Settings.spell:addSubMenu("["..myHero.charName.."] - (E) Settings", "eSpell")
 				self.Settings.spell.eSpell:addParam("autoE", "Auto (E) after success Grab", SCRIPT_PARAM_ONOFF, true)
+				self.Settings.spell.eSpell:permaShow("autoE")
 			self.Settings.spell:addSubMenu("["..myHero.charName.."] - (R) Settings", "rSpell")
-				self.Settings.spell.rSpell:addParam("info", "0 = Before E", SCRIPT_PARAM_INFO, "")
-				self.Settings.spell.rSpell:addParam("info", "1 = After E", SCRIPT_PARAM_INFO, "")
-				self.Settings.spell.rSpell:addParam("type", "Choose type: ", SCRIPT_PARAM_SLICE, 0, 0, 1, 0)
-		
+				self.Settings.spell.rSpell:addParam("type", "Use R:", SCRIPT_PARAM_LIST, 1 , { "Before (E)", "After (E)"})
+				self.Settings.spell.rSpell:permaShow("type")
 		self.Settings:addSubMenu("["..myHero.charName.."] - KillSteal", "killsteal")
 			self.Settings.killsteal:addParam("useR", "Use (R) for KillSteal", SCRIPT_PARAM_ONOFF, false)
+				self.Settings.killsteal:permaShow("useR")
 			
 		self.Settings:addSubMenu("["..myHero.charName.."] - Draw Settings", "drawing")	
 			self.Settings.drawing:addParam("qDraw", "Draw (Q) Range", SCRIPT_PARAM_ONOFF, true)
@@ -356,7 +365,7 @@ end
 
 function Blitzcrank:autoGrab(unit)
 	for i , enemy in pairs(self.myEnemyTable) do
-		if self.Settings.autoGrab[enemy.charName] then
+		if self.Settings.autoGrab[enemy.charName] and ValidTarget(enemy) then
 			if GetDistance(enemy) <= self.Settings.spell.qSpell.maxRange and GetDistance(enemy) >= self.Settings.spell.qSpell.minRange and self.Spells.Q.Ready() then
 				CastPosition,  HitChance,  Position = VP:GetLineCastPosition(enemy, self.Spells.Q.Delay, self.Spells.Q.Width,self.Spells.Q.Range, self.Spells.Q.Speed, myHero, true)	
 				if HitChance >= 2 then
@@ -445,7 +454,7 @@ end
 
 function Blitzcrank:CastR(unit)
 	if GetDistance(unit) <= self.Spells.R.Range - 70 and self.Spells.R.Ready() then
-		if self.Settings.spell.rSpell.type == 0 then
+		if self.Settings.spell.rSpell.type == 1 or not self.Spells.E.Ready() then
 			CastSpell(_R)
 		end
 	end
