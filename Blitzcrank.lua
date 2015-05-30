@@ -105,7 +105,7 @@ end
 local isHere = SCRIPT_PATH.."/" .. GetCurrentEnv().FILE_NAME
 function checkUpdate()
 	local ToUpdate = {}
-	ToUpdate.Version = 1.1
+	ToUpdate.Version = 1.2
 	ToUpdate.Name = "Blitzcrank - AssGrabber"
 	ToUpdate.Host = "raw.githubusercontent.com"
 	ToUpdate.VersionPath = "/AMBER17/BoL/master/Blitzcrank.version"
@@ -249,7 +249,7 @@ end
 
 function Blitzcrank:OnUpdateBuff(unit,buff,stacks)
 	if self.Settings.spell.eSpell.autoE then
-		if ValidTarget(unit) and buff and buff.name =="rocketgrab2" and unit.team ~= myHero.team then
+		if ValidTarget(unit) and buff and buff.name =="rocketgrab2" and unit.team ~= myHero.team and unit.type == myHero.type then
 			CastSpell(_E)
 			myHero:Attack(unit)
 		end
