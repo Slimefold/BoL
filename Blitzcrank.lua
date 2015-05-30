@@ -1,3 +1,4 @@
+if myHero.charName ~= "Blitzcrank" then return end
 class 'Blitzcrank'
 class 'VPrediction'
 class 'AutoUpdate'
@@ -104,7 +105,7 @@ end
 local isHere = SCRIPT_PATH.."/" .. GetCurrentEnv().FILE_NAME
 function checkUpdate()
 	local ToUpdate = {}
-	ToUpdate.Version = 1
+	ToUpdate.Version = 1.1
 	ToUpdate.Name = "Blitzcrank - AssGrabber"
 	ToUpdate.Host = "raw.githubusercontent.com"
 	ToUpdate.VersionPath = "/AMBER17/BoL/master/Blitzcrank.version"
